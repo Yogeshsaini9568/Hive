@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HIVE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --hive-dark: #1a1a1a;
+      --hive-yellow: #ffc107;
+      --hive-light: #f8f9fa;
+      --hive-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9f9f9;
+      color: var(--hive-dark);
+    }
+    
+    /* Enhanced Search Bar */
+    .search-hero {
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+      background-size: cover;
+      background-position: center;
+      padding: 100px 0;
+      margin-bottom: 40px;
+    }
+    
+    .search-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+      padding: 30px;
+      transform: translateY(50px);
+    }
+    
+    .search-tabs .nav-link {
+      border: none;
+      color: #666;
+      font-weight: 500;
+      padding: 0.75rem 1.25rem;
+      margin-right: 5px;
+    }
+    
+    .search-tabs .nav-link.active {
+      color: var(--hive-dark);
+      background: transparent;
+      border-bottom: 3px solid var(--hive-yellow);
+    }
+    
+    .search-form .form-control, 
+    .search-form .form-select {
+      height: 50px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      padding-left: 45px;
+    }
+    
+    .search-form .input-group-text {
+      position: absolute;
+      z-index: 4;
+      background: transparent;
+      border: none;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .search-btn {
+      height: 50px;
+      border-radius: 8px !important;
+      font-weight: 600;
+    }
+    
+    /* Filter Chips */
+    .filter-chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    
+    .filter-chip {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 50px;
+      padding: 5px 15px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .filter-chip:hover {
+      background: #f5f5f5;
+    }
+    
+    .filter-chip.active {
+      background: var(--hive-dark);
+      color: white;
+      border-color: var(--hive-dark);
+    }
+    
+    /* Property Cards */
+    .property-card {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--hive-card-shadow);
+      transition: all 0.3s;
+      margin-bottom: 25px;
+    }
+    
+    .property-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+    
+    .property-img {
+      height: 200px;
+      object-fit: cover;
+      width: 100%;
+    }
+    
+    .property-badge {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    
+    .property-body {
+      padding: 20px;
+    }
+    
+    .property-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 1.1rem;
+    }
+    
+    .property-location {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+    
+    .property-features {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .feature {
+      display: flex;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #555;
+    }
+    
+    .feature i {
+      margin-right: 5px;
+      color: var(--hive-yellow);
+    }
+    
+    .property-price {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--hive-dark);
+    }
+    
+    .price-period {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
+    /* Map View Toggle */
+    .view-toggle {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+    
+    .view-btn {
+      border: 1px solid #e0e0e0;
+      background: white;
+      padding: 8px 15px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .view-btn:first-child {
+      border-radius: 8px 0 0 8px;
+    }
+    
+    .view-btn:last-child {
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .view-btn.active {
+      background: var(--hive-dark);
+      color: white;
+      border-color: var(--hive-dark);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .search-container {
+        padding: 20px;
+        transform: translateY(30px);
+      }
+      
+      .search-tabs .nav-link {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+      }
+      
+      .property-features {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation (Same as your index page) -->
+  <header class="bg-white border-bottom shadow-sm py-2 fixed-top">
+    <div class="container d-flex justify-content-between align-items-center">
+      <a href="./AfterLogin.html" class="fs-4 fw-semibold text-dark text-decoration-none">HIVE</a>
+      <nav class="d-flex align-items-center gap-4">
+        <a href="./AfterLogin.html" class="text-dark text-decoration-none">Home</a>
+        <div class="dropdown">
+          <a class="dropdown-toggle text-dark text-decoration-none" href="#" data-bs-toggle="dropdown">Categories</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="Hostels.html">Hostels</a></li>
+            <li><a class="dropdown-item" href="Pg.html">PGs</a></li>
+            <li><a class="dropdown-item" href="Flat.html">Flats</a></li>
+            <li><a class="dropdown-item" href="House.html">Houses</a></li>
+          </ul>
+        </div>
+        <a href="#footer" class="text-dark text-decoration-none">About</a>
+        <a href="#footer" class="text-dark text-decoration-none">Contact</a>
+        <div class="dropdown">
+          <a class="btn btn-outline-secondary rounded-circle" href="#" data-bs-toggle="dropdown"><i class="bi bi-person"></i></a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" th:href="@{/user/dash}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+            <li><a class="dropdown-item" href="./saved-properties.html"><i class="bi bi-heart me-2"></i>Saved Properties</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" th:href="@{/logout}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main style="padding-top: 80px;">
+    <!-- Hero Search Section -->
+    <section class="search-hero">
+      <div class="search-container">
+        <h1 class="display-4 fw-bold">Find Your Perfect <span class="text-warning">Place</span></h1>
+         <br>
+        
+        <ul class="nav search-tabs mb-4">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">All Types</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./Hostels.html">Hostels</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./Pg.html">PGs</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./Flat.html">Flats</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./House.html">Houses</a>
+          </li>
+        </ul>
+        
+        <form class="search-form">
+          <div class="row g-3">
+            <div class="col-md-5 position-relative">
+              <i class="bi bi-geo-alt input-icon"></i>
+              <input type="text" class="form-control" placeholder="City, Area or University">
+            </div>
+            
+            <div class="col-md-4 position-relative">
+              <i class="bi bi-calendar input-icon"></i>
+              <select class="form-select">
+                <option selected>Move-in Date</option>
+                <option>Immediately</option>
+                <option>Within 1 Month</option>
+                <option>Next Semester</option>
+              </select>
+            </div>
+            
+            <div class="col-md-3" style="margin-top: 40px;">
+              <button type="submit" class="btn btn-dark w-100 search-btn">
+                <i class="bi bi-search me-2"></i> Search
+              </button>
+            </div>
+            
+          </div>
+        </form>
+        
+        <div class="filter-chips">
+          <div class="filter-chip active">
+            <i class="bi bi-sliders me-1"></i> Filters
+          </div>
+          <div class="filter-chip">
+            <i class="bi bi-currency-rupee me-1"></i> Under ₹8,000
+          </div>
+          <div class="filter-chip">
+            <i class="bi bi-gender-male me-1"></i> Boys Only
+          </div>
+          <div class="filter-chip">
+            <i class="bi bi-wifi me-1"></i> WiFi
+          </div>
+          <div class="filter-chip">
+            <i class="bi bi-egg-fried me-1"></i> Meals Included
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="container py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="mb-0">124 properties found in Delhi</h5>
+        
+        <div class="view-toggle">
+          <button class="view-btn active">
+            <i class="bi bi-grid-fill me-2"></i> Grid
+          </button>
+          <button class="view-btn">
+            <i class="bi bi-map me-2"></i> Map
+          </button>
+        </div>
+      </div>
+      
+      <div class="row">
+        <!-- Property 1 -->
+        <div class="col-md-4">
+            <div class="property-card">
+              <div class="position-relative">
+                <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" class="property-img" alt="PG">
+                <div class="property-badge">New</div>
+              </div>
+              <div class="property-body">
+                <h5 class="property-title">Sunshine PG for Girls</h5>
+                <p class="property-location"><i class="bi bi-geo-alt"></i> Malviya Nagar, Delhi • Near JNU</p>
+                
+                <div class="property-features">
+                  <div class="feature"><i class="bi bi-egg-fried"></i> Meals</div>
+                  <div class="feature"><i class="bi bi-door-closed"></i> 3 sharing</div>
+                  <div class="feature"><i class="bi bi-wifi"></i> WiFi</div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="property-price">₹7,200</span>
+                    <span class="price-period">/month</span>
+                  </div>
+                  <div>
+                    <button class="btn btn-sm btn-outline-dark me-2"><i class="bi bi-heart"></i></button>
+                    <a href="./viewpage.html" class="btn btn-sm btn-dark">View</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        
+        <!-- Property 2 -->
+        <div class="col-md-4">
+          <div class="property-card">
+            <div class="position-relative">
+              <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" class="property-img" alt="PG">
+              <div class="property-badge">New</div>
+            </div>
+            <div class="property-body">
+              <h5 class="property-title">Sunshine PG for Girls</h5>
+              <p class="property-location"><i class="bi bi-geo-alt"></i> Malviya Nagar, Delhi • Near JNU</p>
+              
+              <div class="property-features">
+                <div class="feature"><i class="bi bi-egg-fried"></i> Meals</div>
+                <div class="feature"><i class="bi bi-door-closed"></i> 3 sharing</div>
+                <div class="feature"><i class="bi bi-wifi"></i> WiFi</div>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="property-price">₹7,200</span>
+                  <span class="price-period">/month</span>
+                </div>
+                <div>
+                  <button class="btn btn-sm btn-outline-dark me-2"><i class="bi bi-heart"></i></button>
+                  <a href="./viewpage.html" class="btn btn-sm btn-dark">View</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Property 3 -->
+        <div class="col-md-4">
+          <div class="property-card">
+            <div class="position-relative">
+              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" class="property-img" alt="Flat">
+              <div class="property-badge">Popular</div>
+            </div>
+            <div class="property-body">
+              <h5 class="property-title">Modern Studio Flat</h5>
+              <p class="property-location"><i class="bi bi-geo-alt"></i> Dwarka, Delhi • Near Metro</p>
+              
+              <div class="property-features">
+                <div class="feature"><i class="bi bi-person"></i> Private</div>
+                <div class="feature"><i class="bi bi-door-closed"></i> 1BHK</div>
+                <div class="feature"><i class="bi bi-wifi"></i> WiFi</div>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="property-price">₹12,500</span>
+                  <span class="price-period">/month</span>
+                </div>
+                <div>
+                  <button class="btn btn-sm btn-outline-dark me-2"><i class="bi bi-heart"></i></button>
+                  <a href="./viewpage.html" class="btn btn-sm btn-dark">View</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property 3 -->
+        <div class="col-md-4">
+            <div class="property-card">
+              <div class="position-relative">
+                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" class="property-img" alt="Flat">
+                <div class="property-badge">Popular</div>
+              </div>
+              <div class="property-body">
+                <h5 class="property-title">Modern Studio Flat</h5>
+                <p class="property-location"><i class="bi bi-geo-alt"></i> Dwarka, Delhi • Near Metro</p>
+                
+                <div class="property-features">
+                  <div class="feature"><i class="bi bi-person"></i> Private</div>
+                  <div class="feature"><i class="bi bi-door-closed"></i> 1BHK</div>
+                  <div class="feature"><i class="bi bi-wifi"></i> WiFi</div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="property-price">₹12,500</span>
+                    <span class="price-period">/month</span>
+                  </div>
+                  <div>
+                    <button class="btn btn-sm btn-outline-dark me-2"><i class="bi bi-heart"></i></button>
+                    <a href="./viewpage.html" class="btn btn-sm btn-dark">View</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+
+
+                  <!-- Property 3 -->
+        <div class="col-md-4">
+            <div class="property-card">
+              <div class="position-relative">
+                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" class="property-img" alt="Flat">
+                <div class="property-badge">Popular</div>
+              </div>
+              <div class="property-body">
+                <h5 class="property-title">Modern Studio Flat</h5>
+                <p class="property-location"><i class="bi bi-geo-alt"></i> Dwarka, Delhi • Near Metro</p>
+                
+                <div class="property-features">
+                  <div class="feature"><i class="bi bi-person"></i> Private</div>
+                  <div class="feature"><i class="bi bi-door-closed"></i> 1BHK</div>
+                  <div class="feature"><i class="bi bi-wifi"></i> WiFi</div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="property-price">₹12,500</span>
+                    <span class="price-period">/month</span>
+                  </div>
+                  <div>
+                    <button class="btn btn-sm btn-outline-dark me-2"><i class="bi bi-heart"></i></button>
+                    <a href="./viewpage.html" class="btn btn-sm btn-dark">View</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+
+                  <!-- Property 3 -->
+        <div class="col-md-4">
+            <div class="property-card">
+              <div class="position-relative">
+                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" class="property-img" alt="Flat">
+                <div class="property-badge">Popular</div>
+              </div>
+              <div class="property-body">
+                <h5 class="property-title">Modern Studio Flat</h5>
+                <p class="property-location"><i class="bi bi-geo-alt"></i> Dwarka, Delhi • Near Metro</p>
+                
+                <div class="property-features">
+                  <div class="feature"><i class="bi bi-person"></i> Private</div>
+                  <div class="feature"><i class="bi bi-door-closed"></i> 1BHK</div>
+                  <div class="feature"><i class="bi bi-wifi"></i> WiFi</div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="property-price">₹12,500</span>
+                    <span class="price-period">/month</span>
+                  </div>
+                  <div>
+                    <button class="btn btn-sm btn-outline-dark me-2"><i class="bi bi-heart"></i></button>
+                    <a href="./viewpage.html" class="btn btn-sm btn-dark">View</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      </div>
+      
+      <!-- Pagination -->
+      <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Previous</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </section>
+  </main>
+  <br><br>
+  <hr>
+  <!-- Footer -->
+  <footer id="footer" class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <h5 class="fw-semibold">Hive</h5>
+          <p>OM Tower, Alpha 2<br>Phone: +91 789456123<br>Email: support@hive.in</p>
+          <div class="social-links d-flex mt-4">
+            <a href="#" style="font-size: 1.6rem; margin-right: 20px; color: black;"><i class="bi bi-twitter-x"></i></a>
+            <a href="#" style="font-size: 1.6rem; margin-right: 20px; color: black;"><i class="bi bi-facebook"></i></a>
+            <a href="#" style="font-size: 1.6rem; margin-right: 20px; color: black;"><i class="bi bi-instagram"></i></a>
+            <a href="#" style="font-size: 1.6rem; color: black;"><i class="bi bi-linkedin"></i></a>
+            
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+          <h6 class="fw-semibold">Quick Links</h6>
+          <ul class="list-unstyled">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        
+        <div class="col-md-4">
+          <h6 class="fw-semibold">Subscribe</h6>
+          <form>
+            <input type="email" class="form-control mb-2" placeholder="Your Email">
+            <button class="btn btn-dark w-100">Subscribe</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Toggle filter chips
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        if(!this.classList.contains('active')) {
+          this.classList.add('active');
+        } else {
+          this.classList.remove('active');
+        }
+      });
+    });
+    
+    // Toggle view buttons
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

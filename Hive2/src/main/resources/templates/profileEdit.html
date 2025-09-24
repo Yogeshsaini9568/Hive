@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile | YourWebsite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #e6e9ff;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        .profile-edit-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+        .profile-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .profile-subtitle {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+        .profile-content { display: flex; gap: 2rem; }
+        .profile-sidebar {
+            width: 250px;
+            flex-shrink: 0;
+        }
+        .profile-avatar {
+            position: relative;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+        .avatar-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .avatar-preview:hover {
+            transform: scale(1.05);
+        }
+        .avatar-upload {
+            position: absolute;
+            bottom: 10px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.3);
+            transition: background 0.3s ease;
+        }
+        .avatar-upload:hover { background: #3a56d4; }
+        .avatar-upload input { display: none; }
+        .nav-menu { list-style: none; margin-top: 2rem; }
+        .nav-item { margin-bottom: 0.5rem; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            color: var(--gray);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .nav-link i { margin-right: 0.75rem; font-size: 1.1rem; }
+        .profile-form { flex-grow: 1; }
+        .form-section {
+            display: none;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .form-section.active { display: block; }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+        .section-title i {
+            margin-right: 0.75rem;
+            color: var(--primary);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group.full-width { grid-column: span 2; }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background-color: #f8f9fa;
+            transition: border 0.3s ease;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s ease;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3a56d4;
+        }
+        .btn-secondary {
+            background: var(--gray);
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .modal-content {
+		    background: white;
+		    position: fixed; /* Changed from default to fixed */
+		    top: 50%; /* Position at 50% from top */
+		    left: 50%; /* Position at 50% from left */
+		    transform: translate(-50%, -50%); /* Center precisely */
+		    padding: 2rem;
+		    border-radius: 12px;
+		    width: 90%; /* Responsive width */
+		    max-width: 500px; /* Maximum width */
+		    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+		    animation: modalSlideIn 0.3s ease-out;
+		    max-height: 90vh; /* Prevent modal from being too tall */
+		    overflow-y: auto; /* Make scrollable if content is too long */
+		}
+      
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        .modal-body {
+            margin: 1.5rem 0;
+        }
+        .avatar-options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .upload-option, .remove-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-option:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+        .remove-option {
+            border: 2px dashed #ff6b6b;
+            color: #ff6b6b;
+        }
+        .remove-option:hover {
+            background: #fff5f5;
+        }
+        .avatar-options i {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .avatar-preview-container {
+            display: flex;
+            justify-content: center;
+        }
+        #modalAvatarPreview {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-light);
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-content { flex-direction: column; }
+            .profile-sidebar { width: 100%; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+            .modal-content {
+                margin: 20% auto;
+                width: 90%;
+            }
+            .avatar-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="profile-edit-container">
+    <div class="profile-header">
+        <div>
+            <a th:href="@{/user/dash}">
+					<i class="fas fa-arrow-left"></i>
+				</a>
+            <h1 class="profile-title">Edit Profile</h1>
+            <p class="profile-subtitle">Update your personal information, security, and documents</p>
+        </div>
+    </div>
+    <div class="profile-content">
+        <div class="profile-sidebar">
+            <div class="profile-avatar">
+                <img th:src="@{/user/getPhoto}" alt="Profile Photo" class="avatar-preview" id="avatarPreview">
+                <label class="avatar-upload" for="avatarInput">
+                    <i class="fas fa-camera"></i>
+                    <input type="file" id="avatarInput" accept="image/*" hidden>
+                </label>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="#" class="nav-link active" data-section="basicInfoSection"><i class="fas fa-user"></i> Personal Info</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="securitySection"><i class="fas fa-lock"></i> Security</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="documentSection"><i class="fas fa-file-alt"></i> Document Verification</a></li>
+            </ul>
+        </div>
+        <div class="profile-form">
+        <div th:if="${msg!=null}">
+            <p style='background-color:yellow; padding:10px;' th:text="${msg}"></p>
+        </div>
+            <form th:action="@{/user/updateUser}" id="basicInfoSection" method="post" class="form-section active">
+                <h3 class="section-title"><i class="fas fa-user-circle"></i> Basic Information</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label for="firstName">Full Name</label><input type="text" name="name" id="firstName" th:value="${session.user.name}" class="form-control"></div>
+                    <div class="form-group"><label for="email">Email Address</label><input type="email" name="email" id="email" th:value="${session.user.email}" class="form-control"></div>
+                    <div class="form-group"><label for="phone">Phone Number</label><input type="tel" name="phone" id="phone" th:value="${session.user.phone}" class="form-control"></div>
+                   <div class="form-group">
+				    <label for="birthday">Date of Birth</label>
+				    <input type="date" name="userDob" id="birthday" class="form-control" onfocus="this.max=new Date().toISOString().split('T')[0]" th:value="${session.user.dob != null ? #dates.format(session.user.dob, 'yyyy-MM-dd') : ''}"  required>
+				</div>
+                    <div class="form-group"><label for="gender">Gender</label><select name="gender" th:value="${session.user.gender}" id="gender" class="form-control">
+                   
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                    </select>
+                </div>
+                <br>
+<!--                     <div class="form-group"><label for="country">Country</label>
+                    <select id="country" name="userCountry" class="form-control">
+			          <option th:value="${session.user.userCountry}" th:text="${session.user.userCountry}"></option>
+			          <option value="india">India</option>
+			          <option value="uk">United Kingdom</option>
+                      <option value="ca">Canada</option>
+                      <option value="au">Australia</option>
+                      <option value="us">United States</option>
+	                </select>
+                    </div>
+                   <div class="form-group">
+			                <label for="State">State</label>
+			                <select id="State" name="userState" class="form-control">
+			                    <option th:value="${session.user.userState}" th:text="${session.user.userState}"></option>
+			                    <option value="uttar-pradesh">Uttar Pradesh</option>
+			                    <option value="bihar">Bihar</option>
+			                    <option value="delhi">Delhi</option>
+			                    <option value="haryana">Haryana</option>
+			                </select>
+			            </div>
+			
+			            <div class="form-group full-width">
+			                <label for="address">Street Address</label>
+			                <input type="text" id="address" name="userStreet" class="form-control" th:value="${session.user.userStreet}">
+			            </div>
+			
+			            <div class="form-group">
+			                <label for="city">City</label>
+			                <input type="text" id="city" name="userCity" class="form-control" th:value="${session.user.userCity}">
+			            </div>
+			
+			            <div class="form-group">
+			                <label for="postal">Pin Code</label>
+			                <input type="text" id="postal" name="userPincode" class="form-control" th:value="${session.user.userPincode}">
+			            </div> -->
+                </div>
+                <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button></div>
+            </form>
+
+            <form th:action="@{/user/updatePassword}" id="securitySection" method="post" class="form-section">
+                <h3 class="section-title"><i class="fas fa-lock"></i> Security Settings</h3>
+                <div class="form-grid">
+                	<div class="mb-3">
+                		<input type="email" class="form-control" id="email" name="email" th:value="${session.user.email}" readonly hidden>
+            		</div>
+                    <div class="form-group full-width">
+                       <label for="currentPassword">Current Password</label>
+                       <input type="password" name="password" id="currentPassword" placeholder="*********" class="form-control"></div>
+                    <div class="form-group">
+                       <label for="newPassword">New Password</label>
+                       <input type="password"  name="newPassword" id="newPassword" placeholder="*********" class="form-control"></div>
+                    <div class="form-group">
+                       <label for="confirmPassword">Confirm Password</label>
+                       <input type="password" id="confirmPassword" placeholder="*********" class="form-control"></div>
+                </div>
+                <div class="form-actions"><button type="submit" class="btn btn-primary">Save Changes</button></div>
+            </form>
+
+            <form id="documentSection" class="form-section">
+                <h3 class="section-title"><i class="fas fa-file-alt"></i> Document Verification</h3>
+                <div class="form-grid">
+                    <div class="form-group full-width"><label for="documentName">Document Name</label>
+                    <input type="text" id="documentName" class="form-control"></div>
+                    <div class="form-group"><label for="documentType">Document Type</label>
+	                    <select id="documentType" class="form-control">
+	                    <option value="passport">Passport</option>
+	                    <option value="idCard">ID Card</option>
+	                    <option value="driversLicense">Driver's License</option>
+	                    </select>
+                    </div>
+                    <br>
+                    <div class="form-group"><label for="documentFront">Front Image</label>
+                    <input type="file" id="documentFront" class="form-control"></div>
+                    <div class="form-group"><label for="documentBack">Back Image</label>
+                    <input type="file" id="documentBack" class="form-control"></div>
+                </div>
+                <div class="form-actions"><button type="submit" class="btn btn-primary">Save Changes</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Photo Upload Modal -->
+<div id="avatarModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>Update Profile Photo</h3>
+        <div class="modal-body">
+            <div class="avatar-options">
+                <form th:action="@{/user/updatePhoto}" method="post" enctype="multipart/form-data">
+			    <label class="upload-option">
+			        <input type="file" id="saveAvatarBtn" name="photo" accept="image/*" 
+			               onchange="this.form.submit()" hidden>
+			              <i class="fas fa-cloud-upload-alt"></i>
+			        <span>Upload New Photo</span>
+			    </label>
+			    <div class="modal-actions">
+        	</div>
+			</form>
+                <button id="removePhotoBtn" class="remove-option">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Remove Photo</span>
+                </button>
+            </div>
+            <div class="avatar-preview-container">
+                <img id="modalAvatarPreview" src="https://via.placeholder.com/150" alt="Preview">
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    // Tab Navigation
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.form-section');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            sections.forEach(sec => sec.classList.remove('active'));
+            const selectedId = link.getAttribute('data-section');
+            const targetSection = document.getElementById(selectedId);
+            if (targetSection) targetSection.classList.add('active');
+        });
+    });
+
+    // Form Submission
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', e => {
+            // Don't prevent default - let the form submit normally
+            // The backend will handle the actual update
+        });
+    });
+
+    // Avatar Upload Modal Logic
+    const avatarModal = document.getElementById('avatarModal');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const avatarUploadInput = document.getElementById('avatarUploadInput');
+    const modalAvatarPreview = document.getElementById('modalAvatarPreview');
+    const removePhotoBtn = document.getElementById('removePhotoBtn');
+    const saveAvatarBtn = document.getElementById('saveAvatarBtn');
+    const cancelAvatarBtn = document.getElementById('cancelAvatarBtn');
+
+    // Open modal when avatar or camera icon is clicked
+    avatarPreview.addEventListener('click', openAvatarModal);
+    document.querySelector('.avatar-upload').addEventListener('click', (e) => {
+        e.preventDefault();
+        openAvatarModal();
+    });
+
+    function openAvatarModal() {
+        avatarModal.style.display = 'block';
+        modalAvatarPreview.src = avatarPreview.src;
+    }
+
+    // Close modal
+    document.querySelector('.close-modal').addEventListener('click', closeAvatarModal);
+    cancelAvatarBtn.addEventListener('click', closeAvatarModal);
+    window.addEventListener('click', (e) => {
+        if (e.target === avatarModal) {
+            closeAvatarModal();
+        }
+    });
+
+    function closeAvatarModal() {
+        avatarModal.style.display = 'none';
+    }
+
+    // Handle new photo upload
+    avatarUploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size should be less than 2MB');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                modalAvatarPreview.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Remove photo (revert to default)
+    removePhotoBtn.addEventListener('click', () => {
+        modalAvatarPreview.src = 'https://via.placeholder.com/150';
+    });
+
+    // Save changes
+    saveAvatarBtn.addEventListener('click', () => {
+        avatarPreview.src = modalAvatarPreview.src;
+        // In a real app, you would upload to server here
+        alert('Profile photo updated successfully!');
+        closeAvatarModal();
+    });
+</script>
+</body>
+</html>

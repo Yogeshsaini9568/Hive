@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Hive - Student Accommodation Platform</title>
+    <link rel="icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Maps API (replace YOUR_API_KEY with actual key) -->
+    <!-- Google Maps API - Replace with your actual API key in production -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=places"></script>
+    <style>
+      :root {
+        --primary-color: #4361ee;
+        --primary-dark: #3a0ca3;
+        --accent-color: #4cc9f0;
+        --light-gray: #969c9c;
+        --dark-gray: #212529;
+        --medium-gray: #6c757d;
+        --light-blue: #f0f4ff;
+      }
+      
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f9f9f9;
+        color: var(--dark-gray);
+        line-height: 1.6;
+        padding-top: 80px; /* For fixed navbar */
+      }
+      
+      /* Navbar Styles */
+      .navbar-custom {
+        background-color: white;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        padding: 12px 0;
+        height: 80px;
+      }
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.8rem;
+        color: var(--primary-color);
+      }
+      .nav-link {
+        font-weight: 500;
+        color: var(--dark-gray);
+        padding: 8px 15px;
+        transition: all 0.3s ease;
+      }
+      .nav-link:hover {
+        color: var(--primary-color);
+      }
+      .btn-signin {
+        border: 2px solid var(--primary-color);
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      .btn-signin:hover {
+        background-color: var(--primary-color);
+        color: white;
+      }
+      
+      /* Location Search Hero */
+      .location-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        padding: 50px 0;
+        border-radius: 16px;
+        margin: 20px 0 40px;
+        box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+      .location-hero::before {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+      }
+      .location-hero::after {
+        content: "";
+        position: absolute;
+        bottom: -80px;
+        left: -30px;
+        width: 250px;
+        height: 250px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+      }
+      .location-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      .location-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+      .location-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 25px;
+      }
+      .location-search-wrapper {
+        background: white;
+        border-radius: 12px;
+        padding: 8px;
+        display: flex;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      }
+      .location-input-container {
+        flex-grow: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .location-input-container i {
+        position: absolute;
+        left: 15px;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+      }
+      #location-input {
+        width: 100%;
+        padding: 15px 15px 15px 45px;
+        border: none;
+        border-radius: 8px 0 0 8px;
+        font-size: 1rem;
+      }
+      #location-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.3);
+      }
+      .search-button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .search-button:hover {
+        background: var(--primary-dark);
+      }
+      .popular-searches {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .popular-tag {
+        background: rgba(255,255,255,0.15);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+      .popular-tag:hover {
+        background: rgba(255,255,255,0.3);
+        cursor: pointer;
+      }
+
+      /* Filter Section */
+      .filter-section {
+        position: sticky;
+        top: 100px;
+        height: calc(100vh - 120px);
+        overflow-y: auto;
+        padding-right: 15px;
+      }
+      .filter-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 25px;
+        margin-bottom: 25px;
+      }
+      .filter-header {
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-bottom: 20px;
+        color: var(--dark-gray);
+        display: flex;
+        align-items: center;
+      }
+      .filter-header i {
+        margin-right: 10px;
+        color: var(--primary-color);
+      }
+      .form-label {
+        font-weight: 500;
+        color: var(--dark-gray);
+        margin-bottom: 8px;
+      }
+      .form-select, .form-control {
+        border-radius: 8px;
+        padding: 10px 15px;
+        border: 1px solid #e0e0e0;
+      }
+      .form-select:focus, .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      }
+      .price-slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        margin: 20px 0;
+      }
+      .price-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      .price-values {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        color: var(--medium-gray);
+      }
+      .amenities-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 10px;
+      }
+      .amenity-item {
+        display: flex;
+        align-items: center;
+      }
+      .amenity-item label {
+        margin-left: 8px;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+      .btn-apply {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        font-weight: 500;
+        width: 100%;
+        transition: all 0.3s ease;
+      }
+      .btn-apply:hover {
+        background-color: var(--primary-dark);
+      }
+      .btn-reset {
+        background-color: transparent;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        border-radius: 8px;
+        padding: 10px;
+        font-weight: 500;
+        width: 100%;
+        margin-top: 10px;
+        transition: all 0.3s ease;
+      }
+      .btn-reset:hover {
+        background-color: rgba(67, 97, 238, 0.1);
+      }
+      
+      /* Listing Section */
+      .listing-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+      .listing-title {
+        font-weight: 600;
+        font-size: 1.5rem;
+        color: var(--dark-gray);
+        margin: 0;
+      }
+      .sort-select {
+        width: auto;
+        min-width: 200px;
+      }
+      .property-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        margin-bottom: 25px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .property-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      }
+      .property-img {
+        height: 220px;
+        object-fit: cover;
+        width: 100%;
+      }
+      .property-body {
+        padding: 20px;
+      }
+      .property-title {
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-bottom: 8px;
+        color: var(--dark-gray);
+      }
+      .property-location {
+        color: var(--medium-gray);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+      }
+      .property-location i {
+        margin-right: 5px;
+        color: var(--primary-color);
+      }
+      .property-description {
+        color: var(--medium-gray);
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+      }
+      .property-price {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+      }
+      .property-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+      .feature-badge {
+        background-color: rgba(67, 97, 238, 0.1);
+        color: var(--primary-color);
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+      }
+      .feature-badge i {
+        margin-right: 5px;
+      }
+      .property-rating {
+        background-color: #28a745;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+      }
+      .property-rating i {
+        margin-right: 3px;
+        font-size: 0.8rem;
+      }
+      .property-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+      }
+      .btn-view {
+        background-color: white;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        border-radius: 8px;
+        padding: 8px 15px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      .btn-view:hover {
+        background-color: rgba(67, 97, 238, 0.1);
+      }
+      .btn-book {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 20px;
+        margin: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      .btn-book:hover {
+        background-color: var(--primary-dark);
+      }
+      
+      /* Pagination */
+      .pagination-custom .page-item .page-link {
+        color: var(--dark-gray);
+        border: none;
+        margin: 0 5px;
+        border-radius: 8px;
+      }
+      .pagination-custom .page-item.active .page-link {
+        background-color: var(--primary-color);
+        color: white;
+      }
+      .pagination-custom .page-item:hover .page-link {
+        background-color: rgba(67, 97, 238, 0.1);
+        color: var(--primary-color);
+      }
+      
+      /* Footer */
+      .footer {
+        background-color: white;
+        padding: 50px 0 30px;
+        margin-top: 50px;
+      }
+      .footer-title {
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        color: var(--dark-gray);
+      }
+      .footer-links {
+        list-style: none;
+        padding: 0;
+      }
+      .footer-links li {
+        margin-bottom: 10px;
+      }
+      .footer-links a {
+        color: var(--medium-gray);
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+      .footer-links a:hover {
+        color: var(--primary-color);
+      }
+      .social-icons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .social-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: rgba(67, 97, 238, 0.1);
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+      .social-icon:hover {
+        background-color: var(--primary-color);
+        color: white;
+      }
+      .copyright {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+      }
+      
+      /* Responsive Adjustments */
+      @media (max-width: 991.98px) {
+        .filter-section {
+          position: static;
+          height: auto;
+          margin-bottom: 30px;
+        }
+        .amenities-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 767.98px) {
+        .location-title {
+          font-size: 1.5rem;
+        }
+        .location-subtitle {
+          font-size: 1rem;
+        }
+        .location-search-wrapper {
+          flex-direction: column;
+        }
+        #location-input {
+          border-radius: 8px;
+          margin-bottom: 8px;
+        }
+        .search-button {
+          width: 100%;
+          justify-content: center;
+          border-radius: 8px;
+        }
+        .listing-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .sort-select {
+          margin-top: 15px;
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+  <!-- Header -->
+  <header class="bg-white border-bottom shadow-sm py-2 fixed-top">
+    <div class="container d-flex justify-content-between align-items-center">
+      <a href="./AfterLogin.html" class="fs-4 fw-semibold text-dark text-decoration-none">HIVE</a>
+      <nav class="d-flex align-items-center gap-4">
+        <a href="./AfterLogin.html" class="text-dark text-decoration-none">Home</a>
+        <div class="dropdown">
+          <a class="dropdown-toggle text-dark text-decoration-none" href="#" data-bs-toggle="dropdown">Categories</a>
+         <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="Hostels">Hostels</a></li>
+            <li><a class="dropdown-item" href="PGs">PGs</a></li>
+            <li><a class="dropdown-item" href="Flat">Flats</a></li>
+            <li><a class="dropdown-item" href="House">Houses</a></li>
+          </ul>
+        </div>
+        <a href="./aboutAfterLogin.html" class="text-dark text-decoration-none">About</a>
+        <a href="#footer" class="text-dark text-decoration-none">Contact</a>
+        <div class="dropdown">
+          <a class="btn btn-outline-secondary rounded-circle" href="#" data-bs-toggle="dropdown"><i class="bi bi-person"></i></a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="./dash.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-heart me-2"></i>Saved Properties</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="./index.html"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+    <!-- Location Search Section -->
+    <section class="container">
+      <div class="location-hero">
+        <div class="location-content">
+          <h2 class="location-title">Find Your Perfect Accommodation</h2>
+          <p class="location-subtitle">Search across 10,000+ hostels, PGs, flats, and houses in top educational cities</p>
+          
+          <div class="location-search-wrapper">
+            <div class="location-input-container">
+              <i class="bi bi-geo-alt-fill"></i>
+              <input id="location-input" type="text" placeholder="Enter city, area, or landmark">
+            </div>
+            <button class="search-button">
+              <i class="bi bi-search"></i>
+              Search
+            </button>
+          </div>
+          
+          <div class="popular-searches">
+            <span class="popular-tag">Delhi</span>
+            <span class="popular-tag">Bangalore</span>
+            <span class="popular-tag">Pune</span>
+            <span class="popular-tag">Hyderabad</span>
+            <span class="popular-tag">Mumbai</span>
+            <span class="popular-tag">Chennai</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="container mb-5">
+      <div class="row">
+        <!-- Filter Section -->
+        <div class="col-lg-3">
+          <div class="filter-section">
+            <div class="filter-card">
+              <div class="filter-header">
+                <i class="bi bi-funnel"></i>
+                <span>Filters</span>
+              </div>
+              
+              <!-- Location Filter -->
+              <div class="mb-4">
+                <label class="form-label">Distance from location</label>
+                <select class="form-select">
+                  <option selected>Any distance</option>
+                  <option>Within 1 km</option>
+                  <option>Within 3 km</option>
+                  <option>Within 5 km</option>
+                  <option>Within 10 km</option>
+                </select>
+              </div>
+              
+              <!-- Price Range -->
+              <div class="mb-4">
+                <label class="form-label">Price Range (₹)</label>
+                <input type="range" class="form-range price-slider" min="3000" max="15000" step="500" value="15000" id="priceRange">
+                <div class="price-values">
+                  <span>₹3,000</span>
+                  <span>₹15,000</span>
+                </div>
+                <div class="text-center mt-2">
+                  <small class="text-muted">Selected: <span id="priceValue" class="fw-bold">₹15,000</span></small>
+                </div>
+              </div>
+              
+              <!-- Property Type -->
+              <div class="mb-4">
+                <label class="form-label">Property Type</label>
+                <select class="form-select">
+                  <option selected>All Types</option>
+                  <option>Hostel</option>
+                  <option>PG</option>
+                  <option>Flat</option>
+                  <option>House</option>
+                </select>
+              </div>
+              
+              <!-- Room Type -->
+              <div class="mb-4">
+                <label class="form-label">Room Type</label>
+                <select class="form-select">
+                  <option selected>Any</option>
+                  <option>Single</option>
+                  <option>Double</option>
+                  <option>Dormitory</option>
+                  <option>Shared</option>
+                </select>
+              </div>
+              
+              <!-- Gender -->
+              <div class="mb-4">
+                <label class="form-label">Gender</label>
+                <select class="form-select">
+                  <option selected>Any</option>
+                  <option>Male Only</option>
+                  <option>Female Only</option>
+                  <option>Co-ed</option>
+                </select>
+              </div>
+              
+              <!-- Amenities -->
+              <div class="mb-4">
+                <label class="form-label">Amenities</label>
+                <div class="amenities-grid">
+                  <div class="amenity-item">
+                    <input type="checkbox" id="wifi" class="form-check-input">
+                    <label for="wifi">WiFi</label>
+                  </div>
+                  <div class="amenity-item">
+                    <input type="checkbox" id="ac" class="form-check-input">
+                    <label for="ac">AC</label>
+                  </div>
+                  <div class="amenity-item">
+                    <input type="checkbox" id="food" class="form-check-input">
+                    <label for="food">Food</label>
+                  </div>
+                  <div class="amenity-item">
+                    <input type="checkbox" id="laundry" class="form-check-input">
+                    <label for="laundry">Laundry</label>
+                  </div>
+                  <div class="amenity-item">
+                    <input type="checkbox" id="parking" class="form-check-input">
+                    <label for="parking">Parking</label>
+                  </div>
+                  <div class="amenity-item">
+                    <input type="checkbox" id="security" class="form-check-input">
+                    <label for="security">Security</label>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Rating -->
+              <div class="mb-4">
+                <label class="form-label">Minimum Rating</label>
+                <select class="form-select">
+                  <option selected>Any</option>
+                  <option>4★ & up</option>
+                  <option>3★ & up</option>
+                  <option>2★ & up</option>
+                </select>
+              </div>
+              
+              <button class="btn-apply">Apply Filters</button>
+              <button class="btn-reset">Reset All</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Listing Section -->
+        <div class="col-lg-9">
+          <div class="listing-header">
+            <h2 class="listing-title">PGs</h2>
+            <select class="form-select sort-select">
+              <option selected>Sort by: Recommended &nbsp; &nbsp;</option>
+              <option>Price: Low to High</option>
+              <option>Price: High to Low</option>
+              <option>Rating: High to Low</option>
+              <option>Distance: Nearest first</option>
+            </select>
+          </div>
+          
+          <!-- Property Card 1 -->
+          <div class="property-card">
+            <div class="row g-0">
+              <div class="col-md-5">
+                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="property-img" alt="Greenview Hostel">
+              </div>
+              <div class="col-md-7">
+                <div class="property-body">
+                  <h3 class="property-title">Greenview Hostel</h3>
+                  <div class="property-location">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span>Vasant Kunj, Delhi - 1.2 km from center</span>
+                  </div>
+                  <p class="property-description">Modern hostel with spacious rooms, high-speed WiFi, and 24/7 security. Perfect for students looking for a comfortable and safe environment.</p>
+                  <div class="property-features">
+                    <span class="feature-badge"><i class="bi bi-wifi"></i> WiFi</span>
+                    <span class="feature-badge"><i class="bi bi-egg-fried"></i> Food</span>
+                    <span class="feature-badge"><i class="bi bi-brightness-high"></i> AC</span>
+                    <span class="feature-badge"><i class="bi bi-shield-check"></i> Security</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <span class="property-price">₹8,000/month</span>
+                      <span class="property-rating ms-3"><i class="bi bi-star-fill"></i> 4.5</span>
+                    </div>
+                    <div class="property-actions">
+                      <button class="btn-view"><a href="./viewpage.html" style="text-decoration: none;">View Details</a></button>
+                      <a href="./booknow.html" class="btn-book" style="text-decoration: none;">Book Now</a>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Property Card 2 -->
+          <div class="property-card">
+            <div class="row g-0">
+              <div class="col-md-5">
+                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="property-img" alt="Sunrise PG">
+              </div>
+              <div class="col-md-7">
+                <div class="property-body">
+                  <h3 class="property-title">Sunrise PG for Girls</h3>
+                  <div class="property-location">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span>Kothrud, Pune - 2.5 km from center</span>
+                  </div>
+                  <p class="property-description">Exclusive PG accommodation for female students with hygienic food, regular cleaning, and a peaceful study environment.</p>
+                  <div class="property-features">
+                    <span class="feature-badge"><i class="bi bi-wifi"></i> WiFi</span>
+                    <span class="feature-badge"><i class="bi bi-egg-fried"></i> Food</span>
+                    <span class="feature-badge"><i class="bi bi-droplet"></i> Washing Machine</span>
+                    <span class="feature-badge"><i class="bi bi-shield-check"></i> Security</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <span class="property-price">₹10,000/month</span>
+                      <span class="property-rating ms-3"><i class="bi bi-star-fill"></i> 4.8</span>
+                    </div>
+                    <div class="property-actions">
+                      <button class="btn-view"><a href="./viewpage.html" style="text-decoration: none;">View Details</a></button>
+                      <a href="./booknow.html" class="btn-book" style="text-decoration: none;">Book Now</a>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Property Card 3 -->
+          <div class="property-card">
+            <div class="row g-0">
+              <div class="col-md-5">
+                <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="property-img" alt="Urban Flats">
+              </div>
+              <div class="col-md-7">
+                <div class="property-body">
+                  <h3 class="property-title">Urban Flats</h3>
+                  <div class="property-location">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span>Koramangala, Bangalore - 3.1 km from center</span>
+                  </div>
+                  <p class="property-description">Fully furnished flats with modern amenities. Perfect for working professionals and students who prefer privacy and comfort.</p>
+                  <div class="property-features">
+                    <span class="feature-badge"><i class="bi bi-wifi"></i> WiFi</span>
+                    <span class="feature-badge"><i class="bi bi-tv"></i> TV</span>
+                    <span class="feature-badge"><i class="bi bi-brightness-high"></i> AC</span>
+                    <span class="feature-badge"><i class="bi bi-car-front-fill"></i> Parking</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <span class="property-price">₹12,500/month</span>
+                      <span class="property-rating ms-3"><i class="bi bi-star-fill"></i> 4.2</span>
+                    </div>
+                    <div class="property-actions">
+                      <button class="btn-view"><a href="./viewpage.html" style="text-decoration: none;">View Details</a></button>
+                      <a href="./booknow.html" class="btn-book" style="text-decoration: none;">Book Now</a>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pagination -->
+          <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination pagination-custom justify-content-center">
+              <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1">Previous</a>
+              </li>
+              <li class="page-item active"><a class="page-link" href="#">1</a></li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item">
+                <a class="page-link" href="#">Next</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 col-md-6 mb-4">
+            <h3 class="footer-title">HIVE</h3>
+            <p>OM Tower, Alpha 2<br>Phone: +91 789456123<br>Email: support@hive.in</p>
+            <div class="social-icons">
+              <a href="#" class="social-icon"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+              <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+            </div>
+          </div>
+          <div class="col-lg-2 col-md-6 mb-4">
+            <h3 class="footer-title">Quick Links</h3>
+            <ul class="footer-links">
+              <li><a href="./AfterLogin.html">Home</a></li>
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">Listings</a></li>
+              <li><a href="#">Contact</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-2 col-md-6 mb-4">
+            <h3 class="footer-title">Categories</h3>
+            <ul class="footer-links">
+              <li><a href="./Hostels.html">Hostels</a></li>
+              <li><a href="./Pg.html">PGs</a></li>
+              <li><a href="./Flat.html">Flats</a></li>
+              <li><a href="./House.html">Houses</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-4 col-md-6 mb-4">
+            <h3 class="footer-title">Newsletter</h3>
+            <p>Subscribe to our newsletter for the latest updates and offers.</p>
+            <form class="mt-3">
+              <div class="input-group mb-3">
+                <input type="email" class="form-control" placeholder="Your Email">
+                <button class="btn btn-primary" type="submit">Subscribe</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="copyright">
+          &copy; HIVE. All Rights Reserved.
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Script -->
+    <script>
+      // Price range slider update
+      document.getElementById("priceRange").addEventListener("input", function() {
+        const price = parseInt(this.value);
+        const formattedPrice = new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+          maximumFractionDigits: 0
+        }).format(price).replace('₹', '₹');
+        
+        document.getElementById("priceValue").textContent = formattedPrice;
+      });
+      
+      // Initialize Google Maps Autocomplete
+      function initAutocomplete() {
+        const input = document.getElementById("location-input");
+        const autocomplete = new google.maps.places.Autocomplete(input);
+        
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          if (!place.geometry) {
+            console.log("No details available for input: " + place.name);
+            return;
+          }
+          
+          // Here you can handle the selected location
+          console.log("Selected location:", place);
+          // You might want to update your listings based on this location
+        });
+      }
+      
+      // Initialize Google Maps when the page loads
+      document.addEventListener("DOMContentLoaded", function() {
+        initAutocomplete();
+      });
+    </script>
+  </body>
+</html>

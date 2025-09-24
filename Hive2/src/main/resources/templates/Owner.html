@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>HIVE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+    :root {
+      --primary: #0056b3;
+      --primary-light: #0069d9;
+      --secondary: #6c757d;
+      --success: #28a745;
+      --info: #17a2b8;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --white: #ffffff;
+      --border: #dee2e6;
+      --text-muted: #6c757d;
+      --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+    }
+    
+    body {
+      background-color: #f5f7fa;
+      color: #212529;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    
+    .sidebar {
+      min-height: 100vh;
+      background-color: var(--white);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      width: 250px;
+      top: 0; 
+      left: 0;
+      z-index: 100;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar .nav-link {
+      color: var(--secondary);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+      padding: 10px 15px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .sidebar .nav-link i {
+      width: 20px;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--secondary);
+    }
+    
+    .sidebar .nav-link.active, 
+    .sidebar .nav-link:hover {
+      color: var(--primary);
+      background-color: rgba(0, 86, 179, 0.1);
+    }
+    
+    .sidebar .nav-link.active i, 
+    .sidebar .nav-link:hover i {
+      color: var(--primary);
+    }
+    
+    .main-content {
+      margin-left: 250px;
+      padding: 2rem;
+      min-height: 100vh;
+      transition: all 0.3s ease;
+    }
+    
+    .dashboard-header {
+      background: var(--white);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--border);
+    }
+    
+    .card-stats {
+      border-radius: 0.75rem;
+      background: var(--white);
+      box-shadow: var(--card-shadow);
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+    
+    .card-stats:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-stats h5 {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    
+    .card-stats h2 {
+      color: var(--dark);
+      font-size: 1.75rem;
+      margin-bottom: 0;
+      font-weight: 700;
+    }
+    
+    .profile-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+      transition: all 0.2s ease;
+    }
+    
+    .profile-img:hover {
+      transform: scale(1.1);
+    }
+    
+    .search-bar {
+      max-width: 350px;
+      margin-right: 1rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 0.5rem 1.2rem;
+      transition: all 0.2s ease;
+    }
+    
+    .search-bar:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+    }
+    
+    .filter-bar {
+      max-width: 200px;
+      margin-right: 1rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 0.5rem 1.2rem;
+      transition: all 0.2s ease;
+    }
+    
+    .filter-bar:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+    }
+    
+    .table {
+      background: var(--white);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--card-shadow);
+    }
+    
+    .table thead {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .table th {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      color: var(--secondary);
+      letter-spacing: 0.5px;
+    }
+    
+    .table td {
+      vertical-align: middle;
+      border-top: 1px solid var(--border);
+    }
+    
+    .hostel-img-thumb {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+    
+    .hostel-img-thumb:hover {
+      transform: scale(1.05);
+    }
+    
+    .notification-bell {
+      font-size: 1.3rem;
+      color: var(--secondary);
+      margin-right: 1.5rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .notification-bell:hover {
+      color: var(--primary);
+    }
+    
+    .notification-bell .badge {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      font-size: 0.7rem;
+      background: var(--danger);
+      color: var(--white);
+      font-weight: bold;
+    }
+    
+    .dropdown-menu {
+      background: var(--white);
+      border: 1px solid var(--border);
+      box-shadow: var(--card-shadow);
+    }
+    
+    .dropdown-item {
+      color: var(--dark);
+      transition: all 0.2s ease;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .dropdown-item:hover {
+      background-color: rgba(0, 86, 179, 0.1);
+      color: var(--primary);
+    }
+    
+    .toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 2000;
+    }
+    
+    .btn {
+      border-radius: 50px;
+      padding: 0.5rem 1.5rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border: none;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+    
+    .btn-success {
+      background: var(--success);
+    }
+    
+    .btn-success:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+    
+    .btn-outline-primary {
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      background: transparent;
+    }
+    
+    .btn-outline-primary:hover {
+      background: var(--primary);
+      color: var(--white);
+    }
+    
+    .badge {
+      font-weight: 500;
+      padding: 0.35rem 0.65rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+    }
+    
+    .modal-content {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .modal-header {
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .modal-footer {
+      border-top: 1px solid var(--border);
+    }
+    
+    .form-control, .form-select {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      transition: all 0.2s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+    }
+    
+    .list-group-item {
+      background: var(--white);
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+    
+    .list-group-item:hover {
+      background-color: #f8f9fa;
+    }
+    
+    /* Progress bars */
+    .progress {
+      height: 8px;
+      border-radius: 4px;
+      background-color: #e9ecef;
+    }
+    
+    .progress-bar {
+      border-radius: 4px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .sidebar { 
+        position: fixed;
+        width: 70px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+      
+      .sidebar:hover {
+        width: 250px;
+      }
+      
+      .sidebar .nav-link span {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .sidebar:hover .nav-link span {
+        opacity: 1;
+      }
+      
+      .main-content { 
+        margin-left: 70px;
+        padding: 1rem;
+      }
+      
+      .dashboard-header { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 1rem; 
+      }
+      
+      .search-bar, .filter-bar {
+        max-width: 100%;
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+      }
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-light);
+    }
+    
+    /* Card hover effect */
+    .card-hover-effect {
+      transition: all 0.2s ease;
+    }
+    
+    .card-hover-effect:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Input focus effect */
+    .input-focus-effect:focus {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25) !important;
+    }
+    
+    /* Logo animation */
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .float-animation {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    /* Text colors */
+    .text-primary {
+      color: var(--primary) !important;
+    }
+    
+    .text-success {
+      color: var(--success) !important;
+    }
+    
+    .text-warning {
+      color: var(--warning) !important;
+    }
+    
+    .text-danger {
+      color: var(--danger) !important;
+    }
+    
+    .text-info {
+      color: var(--info) !important;
+    }
+    
+    /* Background colors */
+    .bg-primary {
+      background-color: var(--primary) !important;
+    }
+    
+    .bg-success {
+      background-color: var(--success) !important;
+    }
+    
+    .bg-warning {
+      background-color: var(--warning) !important;
+    }
+    
+    .bg-danger {
+      background-color: var(--danger) !important;
+    }
+    
+    .bg-info {
+      background-color: var(--info) !important;
+    }
+
+/* Base Styles */
+.profile-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.card-header h5 {
+  margin: 0;
+  font-weight: 600;
+  color: #333;
+}
+
+.card-body {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Avatar Styles */
+.avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-wrapper {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.avatar-wrapper:hover .profile-avatar {
+  transform: scale(1.03);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.edit-button {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a6cf7;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-button:hover {
+  background: #4a6cf7;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 1.25rem 1.5rem;
+}
+
+.modal-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #f0f0f0;
+  padding: 1rem 1.5rem;
+}
+
+/* Avatar Options */
+.avatar-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.option-button {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.option-button:hover {
+  background: #f9f9f9;
+  border-color: #d0d0d0;
+  transform: translateY(-1px);
+}
+
+.option-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.bg-primary-light {
+  background: rgba(74, 108, 247, 0.1);
+}
+
+.bg-danger-light {
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.view-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem;
+  background: transparent;
+  border: none;
+  color: #4a6cf7;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.view-button:hover {
+  color: #3a5bd9;
+  text-decoration: underline;
+}
+
+/* Current Photo Viewer */
+.current-photo {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.btn {
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: #4a6cf7;
+  border-color: #4a6cf7;
+}
+
+.btn-primary:hover {
+  background: #3a5bd9;
+  border-color: #3a5bd9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  border-color: #f0f0f0;
+  color: #555;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+  border-color: #e0e0e0;
+  color: #333;
+}
+
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar d-flex flex-column p-3">
+    <div class="text-center mb-4">
+      <div class="float-animation">
+       
+      </div>
+      <h4 class="mt-2 glow">HIVE</h4>
+     
+    </div>
+    <ul class="nav flex-column mb-auto">
+      <li class="nav-item"><a class="nav-link active" onclick="showTab('dashboard')"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+      <li class="nav-item"><a class="nav-link"  onclick="showTab('hostels')"><i class="fas fa-building"></i><span>My Hostels</span></a></li>
+      <li class="nav-item"><a class="nav-link"  onclick="showTab('bookings')"><i class="fas fa-calendar-check"></i><span>Bookings</span></a></li>
+      <li class="nav-item"><a class="nav-link"  onclick="showTab('earnings')"><i class="fas fa-wallet"></i><span>Earnings</span></a></li>
+      <li class="nav-item"><a class="nav-link"  onclick="showTab('analytics')"><i class="fas fa-chart-line"></i><span>Analytics</span></a></li>
+      <li class="nav-item"><a class="nav-link"  onclick="showTab('account')"><i class="fas fa-user-cog"></i><span>Account</span></a></li>
+      <li class="nav-link mt-3" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></li>
+    </ul>
+    <div class="mt-auto text-center text-muted" style="font-size: 0.7rem;">
+      <div class="mb-1">HIVE</div>
+      <div>©HIVE  All Rights Reserved</div>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Dashboard Header with Notifications and Profile -->
+    <div class="dashboard-header">
+      <div class="d-flex align-items-center">
+        <h2 class="mb-0">Welcome back, <span class="text-primary glow" th:text="${session.owner.name}"></span></h2>
+      </div>
+      <a th:href="@{/owner/addProperty}" class="text-dark text-decoration-none" >Post property</a>
+       <a th:href="@{/property/AllProperty}" class="text-dark text-decoration-none">All Property</a>
+      <div class="d-flex align-items-center">
+        <div class="notification-bell position-relative pulse-animation" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-bell"></i>
+          <span class="badge">3</span>
+        </div>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#"><i class="fas fa-bell me-2"></i>New booking for "Nexus Hostel"</a></li>
+          <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2"></i>Message from Riya Sharma</a></li>
+          <li><a class="dropdown-item" href="#"><i class="fas fa-star me-2"></i>Review received for "Quantum Stay"</a></li>
+        </ul>
+        <div class="dropdown ms-3">
+          <img th:src="@{/owner/getPhoto}" class="profile-img dropdown-toggle" data-bs-toggle="dropdown" alt="Profile">
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" onclick="showTab('account')"><i class="fas fa-user me-2"></i> Profile</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="dropdown-item" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i> Logout</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Toasts -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer"></div>
+    
+    <!-- Tabs Content -->
+    <div id="dashboardTab">
+      <div class="row mb-4">
+        <div class="col-md-3 col-6 mb-3">
+          <div class="card card-stats text-center card-hover-effect">
+            <div class="card-body">
+              <h5 class="card-title">HOSTELS LISTED</h5>
+              <h2 id="statHostels">5</h2>
+              <div class="mt-2"><i class="fas fa-building" style="color: var(--primary-light);"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+          <div class="card card-stats text-center card-hover-effect">
+            <div class="card-body">
+              <h5 class="card-title">ACTIVE LISTINGS</h5>
+              <h2 id="statActive">4</h2>
+              <div class="mt-2"><i class="fas fa-check-circle" style="color: #00e676;"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+          <div class="card card-stats text-center card-hover-effect">
+            <div class="card-body">
+              <h5 class="card-title">BOOKINGS</h5>
+              <h2 id="statBookings">12</h2>
+              <div class="mt-2"><i class="fas fa-calendar-check" style="color: var(--secondary);"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+          <div class="card card-stats text-center card-hover-effect">
+            <div class="card-body">
+              <h5 class="card-title">EARNINGS</h5>
+              <h2 id="statEarnings">₹42,800</h2>
+              <div class="mt-2"><i class="fas fa-rupee-sign" style="color: #ffeb3b;"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+
+                <div class="col-md-8">
+          <div class="d-flex mb-3 align-items-center">
+            <input class="form-control search-bar input-focus-effect" id="searchHostel" placeholder="Search hostels..." oninput="renderHostelTable()">
+            <select class="form-select filter-bar input-focus-effect" id="filterStatus" onchange="renderHostelTable()">
+              <option value="">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Pending">Pending</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+            <button class="btn btn-success ms-auto" onclick="showTab('hostels');openHostelModal()"><i class="fas fa-plus me-2"></i>Add Property</button>
+          </div>
+          
+          <div class="card mb-4 card-hover-effect">
+            <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">MY HOSTELS</h5>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-sync-alt me-2"></i>Refresh</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>Export</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle mb-0" id="dashboardHostelTable">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Hostel</th>
+                    <th>Status</th>
+                    <th>Bookings</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Filled by JS -->
+					<!-- <tr th:each="b : ${session.buildings}">
+					<td th:text="${b.buildingName}"></td>
+					<td th:text="${b.buildingType}"></td>
+					<td th:text="${b.buildingCountry}"></td>
+					<td th:text="${b.buildingOwnerName}"></td>
+					</tr> -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- Recent Activity -->
+        <div class="col-md-4">
+
+          
+          <div class="card mb-4 card-hover-effect">
+            <div class="card-header bg-transparent border-bottom">
+              <h5 class="mb-0">RECENT ACTIVITY</h5>
+            </div>
+            <div class="card-body p-0">
+              <div class="list-group list-group-flush" id="recentActivity">
+                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">New booking</div>
+                    <small class="text-muted">Nexus Hostel</small>
+                  </div>
+                  <small class="text-primary">Just now</small>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">Message received</div>
+                    <small class="text-muted">From Riya Sharma</small>
+                  </div>
+                  <small class="text-primary">15 min ago</small>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">Review received</div>
+                    <small class="text-muted">Quantum Stay</small>
+                  </div>
+                  <small class="text-primary">1 hour ago</small>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">Payment received</div>
+                    <small class="text-muted">₹8,000</small>
+                  </div>
+                  <small class="text-primary">3 hours ago</small>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Stats -->
+          <div class="card mb-4 card-hover-effect">
+            <div class="card-header bg-transparent border-bottom">
+              <h5 class="mb-0">QUICK STATS</h5>
+            </div>
+            <div class="card-body">
+              <div class="d-flex justify-content-between mb-3">
+                <span>Occupancy Rate</span>
+                <span class="fw-bold">78%</span>
+              </div>
+              <div class="progress mb-3" style="height: 8px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: 78%"></div>
+              </div>
+              
+              <div class="d-flex justify-content-between mb-3">
+                <span>Monthly Growth</span>
+                <span class="fw-bold text-success">+24%</span>
+              </div>
+              <div class="progress mb-3" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 24%"></div>
+              </div>
+              
+              <div class="d-flex justify-content-between">
+                <span>Customer Rating</span>
+                <span class="fw-bold text-warning">4.6/5</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-warning" role="progressbar" style="width: 92%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- My Hostels Table (Preview) -->
+
+      </div>
+    </div>
+    
+    <!-- Hostels Tab -->
+    <div id="hostelsTab" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>MY HOSTELS</h3>
+        <button class="btn btn-success" onclick="openHostelModal()"><i class="fas fa-plus me-2"></i>Add Hostel</button>
+      </div>
+      <div class="d-flex mb-3 align-items-center">
+        <input class="form-control search-bar input-focus-effect" id="searchHostel2" placeholder="Search hostels..." oninput="renderHostelTable()">
+        <select class="form-select filter-bar input-focus-effect" id="filterStatus2" onchange="renderHostelTable()">
+          <option value="">All Status</option>
+          <option value="Active">Active</option>
+          <option value="Pending">Pending</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle" id="hostelTable">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Hostel Name</th>
+              <th>Status</th>
+              <th>Bookings</th>
+              <th>Rating</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Bookings Tab -->
+    <div id="bookingsTab" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>BOOKINGS</h3>
+        <div>
+          <button class="btn btn-outline-primary me-2"><i class="fas fa-download me-2"></i>Export</button>
+          <button class="btn btn-primary"><i class="fas fa-filter me-2"></i>Filters</button>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle" id="bookingsTable">
+          <thead>
+            <tr>
+              <th>Hostel</th>
+              <th>Guest</th>
+              <th>Dates</th>
+              <th>Status</th>
+              <th>Amount</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Earnings Tab -->
+    <div id="earningsTab" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>EARNINGS</h3>
+        <div class="btn-group">
+          <button class="btn btn-outline-primary active">Monthly</button>
+          <button class="btn btn-outline-primary">Quarterly</button>
+          <button class="btn btn-outline-primary">Yearly</button>
+        </div>
+      </div>
+      
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card card-stats text-center card-hover-effect">
+            <div class="card-body">
+              <h5 class="card-title">TOTAL EARNINGS</h5>
+              <h2 id="totalEarnings">₹42,800</h2>
+              <div class="text-success"><i class="fas fa-arrow-up me-1"></i> 24% from last month</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card card-stats text-center card-hover-effect">
+            <div class="card-body">
+              <h5 class="card-title">UPCOMING PAYOUT</h5>
+              <h2>₹18,500</h2>
+              <div>on 30th June</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card card-stats text-center card-hover-effect">
+            <div class="card-body">
+              <h5 class="card-title">AVG. DAILY INCOME</h5>
+              <h2>₹1,425</h2>
+              <div class="text-success"><i class="fas fa-arrow-up me-1"></i> 12% from last month</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card mb-4 card-hover-effect">
+        <div class="card-header bg-transparent border-bottom">
+          <h5 class="mb-0">EARNINGS HISTORY</h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle" id="earningsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Hostel</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+            
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Analytics Tab -->
+    <div id="analyticsTab" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>ANALYTICS</h3>
+        <div class="btn-group">
+          <button class="btn btn-outline-primary active">7 Days</button>
+          <button class="btn btn-outline-primary">30 Days</button>
+          <button class="btn btn-outline-primary">90 Days</button>
+        </div>
+      </div>
+      
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <div class="card card-hover-effect">
+            <div class="card-header bg-transparent border-bottom">
+              <h5 class="mb-0">BOOKINGS TREND</h5>
+            </div>
+            <div class="card-body">
+              <div style="height: 300px; background: var(--glass); border-radius: 8px; display: flex; justify-content: center; align-items: center;">
+                <div class="text-center">
+                  <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--primary-light); opacity: 0.5;"></i>
+                  <p class="mt-2">Booking analytics chart will be displayed here</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card card-hover-effect">
+            <div class="card-header bg-transparent border-bottom">
+              <h5 class="mb-0">TOP HOSTELS</h5>
+            </div>
+            <div class="card-body">
+              <div class="list-group list-group-flush">
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">Quantum Stay</div>
+                    <small class="text-muted">12 bookings</small>
+                  </div>
+                  <span class="badge bg-primary">₹18,500</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">Nexus Hostel</div>
+                    <small class="text-muted">8 bookings</small>
+                  </div>
+                  <span class="badge bg-primary">₹12,300</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">Cosmic Dwell</div>
+                    <small class="text-muted">5 bookings</small>
+                  </div>
+                  <span class="badge bg-primary">₹7,800</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">Galaxy Inn</div>
+                    <small class="text-muted">3 bookings</small>
+                  </div>
+                  <span class="badge bg-primary">₹4,200</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card card-hover-effect">
+            <div class="card-header bg-transparent border-bottom">
+              <h5 class="mb-0">OCCUPANCY RATE</h5>
+            </div>
+            <div class="card-body">
+              <div style="height: 250px; background: var(--glass); border-radius: 8px; display: flex; justify-content: center; align-items: center;">
+                <div class="text-center">
+                  <i class="fas fa-chart-pie" style="font-size: 3rem; color: var(--secondary); opacity: 0.5;"></i>
+                  <p class="mt-2">Occupancy analytics will be displayed here</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card card-hover-effect">
+            <div class="card-header bg-transparent border-bottom">
+              <h5 class="mb-0">REVENUE SOURCES</h5>
+            </div>
+            <div class="card-body">
+              <div style="height: 250px; background: var(--glass); border-radius: 8px; display: flex; justify-content: center; align-items: center;">
+                <div class="text-center">
+                  <i class="fas fa-chart-bar" style="font-size: 3rem; color: #00e676; opacity: 0.5;"></i>
+                  <p class="mt-2">Revenue analytics will be displayed here</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Account Tab -->
+    <div id="accountTab" style="display:none;">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="profile-card">
+  <div class="card-header">
+    <h5>PROFILE</h5>
+  </div>
+  <div class="card-body">
+    <div class="avatar-container">
+      <div class="avatar-wrapper">
+        <img id="profileImage" th:src="@{/owner/getPhoto}" 
+             class="profile-avatar" alt="Profile">
+        <button class="edit-button" data-bs-toggle="modal" data-bs-target="#avatarEditorModal">
+          <i class="fas fa-pen"></i>
+        </button>
+      </div>
+      <h4> <spam th:text="${session.owner.name}"></spam></h4>
+      <p class="text-muted">Owner</p>
+    </div>
+  </div>
+</div>
+
+<!-- Avatar Editor Modal -->
+<div class="modal fade" id="avatarEditorModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="photoForm" method="post" th:action="@{/owner/updatePhoto}" enctype="multipart/form-data">
+        <div class="modal-header">
+          <h5 class="modal-title">Update Profile Photo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="avatar-options">
+            <button type="button" id="uploadNewPhoto" class="option-button">
+              <div class="option-icon bg-primary-light">
+                <i class="fas fa-cloud-upload-alt text-primary"></i>
+              </div>
+              <span>Upload New Photo</span>
+            </button>
+            
+            <button type="button" id="removePhoto" class="option-button">
+              <div class="option-icon bg-danger-light">
+                <i class="fas fa-trash-alt text-danger"></i>
+              </div>
+              <span>Remove Photo</span>
+            </button>
+            
+            <button type="button" id="viewCurrentPhoto" class="view-button">
+              <i class="fas fa-eye me-2"></i>View Current Photo
+            </button>
+          </div>
+          
+          <input type="file" name="ownerImg" id="imageUpload" accept="image/*" class="d-none" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" id="saveChanges" class="btn btn-primary" disabled>Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Current Photo Viewer -->
+<div class="modal fade" id="currentPhotoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Current Photo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="currentPhotoView" src="" class="current-photo" alt="Current Profile Photo">
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+          <div class="card card-hover-effect">
+  <div class="card-header bg-transparent border-bottom">
+    <h5 class="mb-0">SECURITY</h5>
+  </div>
+  <div class="card-body">
+    <div class="mb-3">
+      <label class="form-label">Current Password</label>
+      <input type="password" id="currentPassword" class="form-control input-focus-effect">
+
+      <label class="form-label">New Password</label>
+      <input type="password" id="newPassword" class="form-control input-focus-effect">
+
+      <label class="form-label">Confirm New Password</label>
+      <input type="password" id="confirmPassword" class="form-control input-focus-effect">
+
+      <!-- Feedback message -->
+      <small id="matchMessage" style="color: red;"></small>
+    </div>
+
+    <button class="btn btn-primary w-100" id="changeBtn" disabled>
+      <i class="fas fa-key me-2"></i>Change Password
+    </button>
+  </div>
+</div>
+          
+        </div>
+         <!-- Profile Section -->
+        <div class="col-md-8">
+          <div class="card card-hover-effect">
+            <div class="card-header bg-transparent border-bottom">
+              <h5 class="mb-0">ACCOUNT SETTINGS</h5>
+            </div>
+            <div class="card-body">
+              <form  id="ownerForm" method="post">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="ownerName" class="form-control input-focus-effect" th:value="${session.owner.name}">
+                  </div>
+	              <div class="col-md-6">
+	                <label class="form-label">Email</label>
+	                <input type="email" name="ownerEmail" class="form-control input-focus-effect" th:value="${session.owner.email}" readonly>
+	              </div>    
+                  <div class="col-md-6">
+                    <label class="mt-3">Phone</label>
+                    <input type="tel" name="ownerPhoneNumber" class="form-control input-focus-effect" th:value="${session.owner.phone}">
+                  </div>
+                  <div class="col-md-6">
+				    <label class="mt-3" for="birthday">Date of Birth</label>
+				    <input type="date" name="ownerDob" id="birthday" class="form-control input-focus-effect" 
+				      onfocus="this.max=new Date().toISOString().split('T')[0]" 
+				      th:value="${session.owner.dob != null ? #dates.format(session.owner.dob, 'yyyy-MM-dd') : ''}"  required>
+				  </div>
+                  <div class="col-md-6 mt-3"><label for="gender">Gender</label>
+                    <select name="gender" id="gender" class="form-control input-focus-effect">
+                      <option th:value="${session.owner.gender}" th:text="${session.owner.gender}"></option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <br>
+<!--                   <div class="col-md-6 mt-3"><label for="country">Country</label>
+                    <select id="country" name="ownerCountry" class="form-control input-focus-effect">
+			          <option th:value="${session.owner.ownerCountry}" th:text="${session.owner.ownerCountry}"></option>
+			          <option value="India">India</option>
+			          <option value="United Kingdom">United Kingdom</option>
+                      <option value="Canada">Canada</option>
+                      <option value="Australia">Australia</option>
+                      <option value="United States">United States</option>
+	                </select>
+                  </div>
+                  <div class="col-md-6">
+			         <label class="mt-3" for="State">State</label>
+			         <select id="State" name="ownerState" class="form-control input-focus-effect">
+	                   <option th:value="${session.owner.ownerState}" th:text="${session.owner.ownerState}"></option>
+		               <option value="Uttar-Pradesh">Uttar Pradesh</option>
+	                   <option value="Bihar">Bihar</option>
+	                   <option value="Delhi">Delhi</option>
+	                   <option value="Haryana">Haryana</option>
+		             </select>
+		           </div>
+			       <div class="col-md-6">
+			            <label class="mt-3" for="city">City</label>
+		                <input type="text" id="city" name="ownerCity" class="form-control input-focus-effect" th:value="${session.owner.ownerCity}">
+	               </div>
+	                <div class="col-md-6 full-width">
+			           <label class="mt-3" for="address">Street Address</label>
+			           <input type="text" id="address" name="ownerStreet" class="form-control input-focus-effect" th:value="${session.owner.ownerStreet}">
+	               </div>	
+			       <div class="col-md-6">
+			            <label class="mt-3" for="postal">Pin Code</label>
+			            <input type="text" id="postal" name="ownerPincode" class="form-control input-focus-effect" th:value="${session.owner.ownerPincode}">
+		           </div> -->
+                </div>  
+                <button class="btn btn-primary" type="button" onclick="showToast('Account updated!','success')"><i class="fas fa-save me-2"></i>Save Changes</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Add/Edit Hostel Modal -->
+  <div class="modal fade" id="hostelModal" tabindex="-1" aria-labelledby="hostelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <form class="modal-content" id="hostelForm" onsubmit="saveHostel(event)">
+        <div class="modal-header">
+          <h5 class="modal-title" id="hostelModalLabel">Add Building</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="hostelIndex">
+          <div class="row mb-3">
+          <h5>Building Information</h5>
+            <div class="col-md-6">
+                <label class="form-label mb-1">Building Type</label>
+                <select name="buildingType" class="form-control input-focus-effect">
+                      <option value=""></option>
+                      <option value="PG">PG</option>
+                      <option value="Flat">Flat</option>
+                      <option value="Apartment">Apartment</option>
+                      <option value="Villa">Villa</option>
+                    </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label mb-1">Building Name</label>
+                <input type="text" name="buildingName" class="form-control input-focus-effect" id="hostelName" required>
+              </div>
+              <div class="col-md-6"><label class="form-label mt-2 mb-1">Country</label>
+                    <select id="country" name="buildingCountry" class="form-control input-focus-effect">
+			          <option value=""></option>
+			          <option value="India">India</option>
+			          <option value="United Kingdom">United Kingdom</option>
+                      <option value="Canada">Canada</option>
+                      <option value="Australia">Australia</option>
+                      <option value="United States">United States</option>
+	                </select>
+                  </div>
+                  <div class="col-md-6">
+			         <label class="form-label mt-2 mb-1 ">State</label>
+			         <select id="State" name="buildingState" class="form-control input-focus-effect">
+	                   <option value="" ></option>
+		               <option value="Uttar-Pradesh">Uttar Pradesh</option>
+	                   <option value="Bihar">Bihar</option>
+	                   <option value="Delhi">Delhi</option>
+	                   <option value="Haryana">Haryana</option>
+		             </select>
+		           </div>
+			       <div class="col-md-6">
+			            <label class="form-label mt-2 mb-1">City</label>
+		                <input type="text" id="city" name="buildingCity" class="form-control input-focus-effect" value="">
+	               </div>
+	                <div class="col-md-6">
+			           <label class="form-label mt-2 mb-1">Street Address</label>
+			           <input type="text" id="address" name="buildingStreet" class="form-control input-focus-effect" value="">
+	               </div>	
+			       <div class="col-md-6">
+			            <label class="form-label mt-2 mb-1">Pin Code</label>
+			            <input type="text" id="postal" name="buildingPincode" class="form-control input-focus-effect">
+		           </div>
+		           <br>
+		           <h5 class="mt-3" >Room Information</h5>
+		           <div class="col-md-6">
+		                <label class="form-label mt-2 mb-1">Single Sharing Available Room</label>
+		                <input type="number" name="singleSharingRoomAvailable" class="form-control input-focus-effect" id="hostelBookings" min="0" >
+	              </div>
+	               <div class="col-md-6">
+		                <label class="form-label mt-2 mb-1">Price Per Person</label>
+		                <input type="number" name="singleSharingRoomPrice" class="form-control input-focus-effect" id="hostelBookings" min="0" >
+	              </div>
+	              <div class="col-md-6">
+		                <label class="form-label mt-2 mb-1">Double Sharing Available Room</label>
+		                <input type="number" name="doubleSharingRoomAvailable" class="form-control input-focus-effect" id="hostelBookings" min="0" >
+	              </div>
+	               <div class="col-md-6">
+		                <label class="form-label mt-2 mb-1">Price Per Person</label>
+		                <input type="number" name="doubleSharingRoomPrice" class="form-control input-focus-effect" id="hostelBookings"  >
+	              </div>
+	              <div class="col-md-6">
+		                <label class="form-label mt-2 mb-1">Triple Sharing Available Room</label>
+		                <input type="number" name="tripleSharingRoomAvailable" class="form-control input-focus-effect" id="hostelBookings" min="0" >
+	              </div>
+	               <div class="col-md-6">
+		                <label class="form-label mt-2 mb-1">Price Per Person</label>
+		                <input type="number" name="tripleSharingRoomPrice" class="form-control input-focus-effect" id="hostelBookings"  >
+	              </div>
+	              <div class="col-md-6">
+			  <label class="form-label mt-2 mb-1">Image 1</label>
+			  <input type="file" name="buildingImg12" class="form-control input-focus-effect image-input" id="hostelImage1" data-preview-id="hostelImagePreview1" accept="image/*">
+			  <img id="hostelImagePreview1" src="" alt="Preview" style="display:none;width:100%;max-height:150px;margin-top:8px;border-radius:8px;object-fit:cover;">
+			</div>
+			
+			<div class="col-md-6">
+			  <label class="form-label mt-2 mb-1">Image 2</label>
+			  <input type="file" name="buildingImg22" class="form-control input-focus-effect image-input" id="hostelImage2" data-preview-id="hostelImagePreview2" accept="image/*">
+			  <img id="hostelImagePreview2" src="" alt="Preview" style="display:none;width:100%;max-height:150px;margin-top:8px;border-radius:8px;object-fit:cover;">
+			</div>
+			
+			<div class="col-md-6">
+			  <label class="form-label mt-2 mb-1">Image 3</label>
+			  <input type="file" name="buildingImg32" class="form-control input-focus-effect image-input" id="hostelImage3" data-preview-id="hostelImagePreview3" accept="image/*">
+			  <img id="hostelImagePreview3" src="" alt="Preview" style="display:none;width:100%;max-height:150px;margin-top:8px;border-radius:8px;object-fit:cover;">
+			</div>
+			
+			<div class="col-md-6">
+			  <label class="form-label mt-2 mb-1">Image 4</label>
+			  <input type="file" name="buildingImg42" class="form-control input-focus-effect image-input" id="hostelImage4" data-preview-id="hostelImagePreview4" accept="image/*">
+			  <img id="hostelImagePreview4" src="" alt="Preview" style="display:none;width:100%;max-height:150px;margin-top:8px;border-radius:8px;object-fit:cover;">
+			</div>
+              <br>
+              <h5 class="mt-3" >Ownership Proof</h5>
+              <div class="col-md-6">
+	              <label class="form-label mt-2 mb-1">Owner Name</label>
+	    	      <input type="text" id="postal" name="buildingOwnerName" class="form-control input-focus-effect" value="">
+		      </div>
+		      <div class="col-md-6">
+	              <label class="form-label mt-2 mb-1">Owner Contact No.</label>
+	    	      <input type="text" id="postal" name="buildingOwnerContactNumber" class="form-control input-focus-effect" value="">
+		      </div>
+		      <div class="col-md-6">
+                <label class="form-label mb-1">Document Type</label>
+                <select name="DocumentType" class="form-control input-focus-effect">
+                      <option value="" ></option>
+                      <option value="Aadhaar Card">Aadhaar Card</option>
+                      <option value="Pan Card">Pan Card</option>
+                      <option value="Voter ID">Voter ID</option>
+                      <option value="Driving Licence">Driving Licence</option>
+                    </select>
+              </div>
+              <div class="col-md-6">
+	                <label class="form-label mt-2 mb-1">Document File</label>
+	                <input type="file" class="form-control input-focus-effect" id="hostelImage" accept="image/*">
+	                <img id="hostelImagePreview" src="" alt="Preview" style="display:none;width:100%;max-height:150px;margin-top:8px;border-radius:8px;object-fit:cover;">
+              </div>
+              <div class="col-md-6">
+	                <label class="form-label mt-2 mb-1">Owner Proof/Electricity Bill</label>
+	                <input type="file" class="form-control input-focus-effect" id="hostelImage" accept="image/*">
+	                <img id="hostelImagePreview" src="" alt="Preview" style="display:none;width:100%;max-height:150px;margin-top:8px;border-radius:8px;object-fit:cover;">
+              </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="buildingDescription" class="form-control input-focus-effect" id="hostelDescription" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Amenities</label>
+            <div class="row">
+              <div class="col-md-3 col-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="amenityWifi">
+                  <label class="form-check-label" for="amenityWifi">Wi-Fi</label>
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="amenityAc">
+                  <label class="form-check-label" for="amenityAc">AC</label>
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="amenityFood">
+                  <label class="form-check-label" for="amenityFood">Food</label>
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="amenityLaundry">
+                  <label class="form-check-label" for="amenityLaundry">Laundry</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success"><i class="fas fa-save me-2"></i>Save</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Hostel Details Modal -->
+  <div class="modal fade" id="hostelDetailsModal" tabindex="-1" aria-labelledby="hostelDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="hostelDetailsModalLabel">Hostel Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="hostelDetailsBody">
+          <!-- Filled by JS -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">CONFIRM DELETE</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <i class="fas fa-exclamation-triangle text-danger mb-3" style="font-size: 3rem;"></i>
+          <h5>Are you sure you want to delete this hostel?</h5>
+          <p class="text-muted">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn"><i class="fas fa-trash me-2"></i>Delete</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Demo Data
+    let hostels = [
+      {name: "Quantum Stay", status: "Active", bookings: 5, price: 1200, capacity: 15, rating: 5, 
+       image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&h=300&q=80", 
+       location: "Tech Park", description: "Futuristic hostel with smart rooms and AI assistance.", amenities: ['Wi-Fi', 'AC', 'Food']},
+      
+      {name: "Nexus Hostel", status: "Active", bookings: 3, price: 1500, capacity: 20, rating: 4, 
+       image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=400&h=300&q=80", 
+       location: "Downtown", description: "Modern design with premium amenities and great views.", amenities: ['Wi-Fi', 'AC', 'Laundry']},
+      
+      {name: "Cosmic Dwell", status: "Active", bookings: 2, price: 1000, capacity: 12, rating: 4, 
+       image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=400&h=300&q=80", 
+       location: "Space District", description: "Space-themed hostel with unique decor and atmosphere.", amenities: ['Wi-Fi', 'Food']},
+      
+      {name: "Galaxy Inn", status: "Pending", bookings: 0, price: 800, capacity: 10, rating: 3, 
+       image: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=400&h=300&q=80", 
+       location: "Stellar Avenue", description: "Budget-friendly option with basic amenities.", amenities: ['Wi-Fi']},
+      
+      {name: "Orbit Lodge", status: "Rejected", bookings: 0, price: 900, capacity: 8, rating: 2, 
+       image: "https://images.unsplash.com/photo-1505873242700-f289a29e1e0f?auto=format&fit=crop&w=400&h=300&q=80", 
+       location: "Moon Street", description: "Small cozy hostel with friendly staff.", amenities: []}
+    ];
+    
+    let bookings = [
+      {hostel: "Quantum Stay", guest: "Riya Sharma", dates: "10-12 June", status: "Confirmed", amount: "₹3,600"},
+      {hostel: "Nexus Hostel", guest: "Amit Patel", dates: "15-18 June", status: "Pending", amount: "₹4,500"},
+      {hostel: "Quantum Stay", guest: "Priya Singh", dates: "20-22 June", status: "Confirmed", amount: "₹2,400"},
+      {hostel: "Cosmic Dwell", guest: "Rahul Verma", dates: "5-8 July", status: "Confirmed", amount: "₹3,000"},
+      {hostel: "Nexus Hostel", guest: "Neha Gupta", dates: "12-15 July", status: "Confirmed", amount: "₹4,500"},
+      {hostel: "Quantum Stay", guest: "Vikram Joshi", dates: "18-20 July", status: "Pending", amount: "₹2,400"}
+    ];
+    
+    let earnings = [
+      {date: "2024-06-01", hostel: "Quantum Stay", amount: "₹8,000", status: "Paid", details: "3 bookings"},
+      {date: "2024-06-10", hostel: "Nexus Hostel", amount: "₹4,500", status: "Paid", details: "1 booking"},
+      {date: "2024-06-15", hostel: "Cosmic Dwell", amount: "₹3,000", status: "Paid", details: "1 booking"},
+      {date: "2024-06-20", hostel: "Quantum Stay", amount: "₹12,000", status: "Pending", details: "5 bookings"},
+      {date: "2024-06-25", hostel: "Nexus Hostel", amount: "₹7,800", status: "Pending", details: "2 bookings"},
+      {date: "2024-06-30", hostel: "Cosmic Dwell", amount: "₹6,000", status: "Upcoming", details: "2 bookings"}
+    ];
+    
+    let deleteIdx = null;
+
+    // Tab Navigation
+    function showTab(tab) {
+      document.getElementById('dashboardTab').style.display = (tab === 'dashboard') ? '' : 'none';
+      document.getElementById('hostelsTab').style.display = (tab === 'hostels') ? '' : 'none';
+      document.getElementById('bookingsTab').style.display = (tab === 'bookings') ? '' : 'none';
+      document.getElementById('earningsTab').style.display = (tab === 'earnings') ? '' : 'none';
+      document.getElementById('analyticsTab').style.display = (tab === 'analytics') ? '' : 'none';
+      document.getElementById('accountTab').style.display = (tab === 'account') ? '' : 'none';
+      document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
+      let idx = ['dashboard','hostels','bookings','earnings','analytics','account'].indexOf(tab);
+      if(idx >= 0) document.querySelectorAll('.sidebar .nav-link')[idx].classList.add('active');
+      if(tab === 'hostels') renderHostelTable();
+      if(tab === 'dashboard') renderDashboardHostels();
+      if(tab === 'bookings') renderBookingsTable();
+      if(tab === 'earnings') renderEarningsTable();
+    }
+
+    // Hostel Table
+    function renderHostelTable() {
+      let search = (document.getElementById('searchHostel')?.value || document.getElementById('searchHostel2')?.value || '').toLowerCase();
+      let filter = document.getElementById('filterStatus')?.value || document.getElementById('filterStatus2')?.value || '';
+      let filtered = hostels.filter(h =>
+        (!search || h.name.toLowerCase().includes(search)) &&
+        (!filter || h.status === filter)
+      );
+      
+      // Hostels Tab
+      let tbody = document.querySelector('#hostelTable tbody');
+      if(tbody) tbody.innerHTML = filtered.map((h,i) => `
+        <tr>
+          <td><img src="${h.image||'https://via.placeholder.com/80?text=No+Image'}" class="hostel-img-thumb" alt=""></td>
+          <td>
+            <div class="fw-bold">${h.name}</div>
+            <small class="text-muted">${h.location}</small>
+          </td>
+          <td><span class="badge bg-${h.status==='Active'?'success':h.status==='Pending'?'warning text-dark':'danger'}">${h.status}</span></td>
+          <td>${h.bookings}/${h.capacity}</td>
+          <td>${'★'.repeat(h.rating)}${'☆'.repeat(5-h.rating)}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-info" onclick="showHostelDetails(${i})"><i class='fas fa-eye'></i></button>
+            <button class="btn btn-sm btn-outline-primary" onclick="editHostel(${i})"><i class='fas fa-edit'></i></button>
+            <button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteHostel(${i})"><i class='fas fa-trash'></i></button>
+          </td>
+        </tr>
+      `).join('');
+      
+      // Dashboard Preview
+      let tbody2 = document.querySelector('#dashboardHostelTable tbody');
+      if(tbody2) tbody2.innerHTML = filtered.map((h,i) => `
+        <tr>
+          <td><img src="${h.image||'https://via.placeholder.com/80?text=No+Image'}" class="hostel-img-thumb" alt=""></td>
+          <td>${h.name}</td>
+          <td><span class="badge bg-${h.status==='Active'?'success':h.status==='Pending'?'warning text-dark':'danger'}">${h.status}</span></td>
+          <td>${h.bookings}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-info" onclick="showHostelDetails(${i})"><i class='fas fa-eye'></i></button>
+            <button class="btn btn-sm btn-outline-primary" onclick="editHostel(${i})"><i class='fas fa-edit'></i></button>
+          </td>
+        </tr>
+      `).join('');
+      
+      document.getElementById('statHostels').innerText = hostels.length;
+      document.getElementById('statActive').innerText = hostels.filter(h=>h.status==='Active').length;
+      document.getElementById('statBookings').innerText = bookings.length;
+      document.getElementById('statEarnings').innerText = "₹" + earnings.filter(e=>e.status==="Paid").reduce((a,e)=>a+parseInt(e.amount.replace(/\D/g,'')),0);
+    }
+    
+    function renderDashboardHostels() { renderHostelTable(); }
+    
+    // Bookings Table
+    function renderBookingsTable() {
+      let tbody = document.querySelector('#bookingsTable tbody');
+      tbody.innerHTML = bookings.map((b,i) => `
+        <tr>
+          <td>${b.hostel}</td>
+          <td>${b.guest}</td>
+          <td>${b.dates}</td>
+          <td><span class="badge bg-${b.status==='Confirmed'?'success':b.status==='Pending'?'warning text-dark':'danger'}">${b.status}</span></td>
+          <td>${b.amount}</td>
+          <td>
+            <select class="form-select form-select-sm input-focus-effect" onchange="updateBookingStatus(${i},this.value)">
+              <option value="Confirmed" ${b.status==='Confirmed'?'selected':''}>Confirmed</option>
+              <option value="Pending" ${b.status==='Pending'?'selected':''}>Pending</option>
+              <option value="Cancelled" ${b.status==='Cancelled'?'selected':''}>Cancelled</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+    
+    function updateBookingStatus(idx, val) {
+      bookings[idx].status = val;
+      renderBookingsTable();
+      showToast('Booking status updated!','success');
+    }
+    
+    // Earnings Table
+    function renderEarningsTable() {
+      let tbody = document.querySelector('#earningsTable tbody');
+      tbody.innerHTML = earnings.map(e => `
+        <tr>
+          <td>${e.date}</td>
+          <td>${e.hostel}</td>
+          <td>${e.amount}</td>
+          <td><span class="badge bg-${e.status==='Paid'?'success':e.status==='Pending'?'warning text-dark':'primary'}">${e.status}</span></td>
+          <td>${e.details}</td>
+        </tr>
+      `).join('');
+      
+      let totalEarnings = earnings.filter(e=>e.status==="Paid").reduce((a,e)=>a+parseInt(e.amount.replace(/\D/g,'')),0);
+      document.getElementById('totalEarnings').innerText = "₹" + totalEarnings.toLocaleString('en-IN');
+    }
+    
+    // Hostel Modal
+    function openHostelModal(editIdx) {
+      document.getElementById('hostelForm').reset();
+      document.getElementById('hostelIndex').value = '';
+      document.getElementById('hostelImagePreview').style.display = 'none';
+      document.getElementById('hostelImagePreview').src = '';
+      document.getElementById('hostelModalLabel').innerText = "Add Hostel";
+      
+      // Reset amenities
+      ['Wifi', 'Ac', 'Food', 'Laundry'].forEach(a => {
+        document.getElementById(`amenity${a}`).checked = false;
+      });
+      
+      // Hotel edit ka model
+      if(typeof editIdx === 'number') {
+        let h = hostels[editIdx];
+        document.getElementById('hostelName').value = h.name;
+        document.getElementById('hostelLocation').value = h.location;
+        document.getElementById('hostelStatus').value = h.status;
+        document.getElementById('hostelBookings').value = h.bookings;
+        document.getElementById('hostelPrice').value = h.price;
+        document.getElementById('hostelCapacity').value = h.capacity;
+        document.getElementById('hostelRating').value = h.rating;
+        document.getElementById('hostelDescription').value = h.description || '';
+        document.getElementById('hostelIndex').value = editIdx;
+        document.getElementById('hostelModalLabel').innerText = "Edit Hostel";
+        
+        // Set amenities
+        if(h.amenities) {
+          h.amenities.forEach(a => {
+            let id = `amenity${a.replace(/\s/g, '')}`;
+            if(document.getElementById(id)) {
+              document.getElementById(id).checked = true;
+            }
+          });
+        }
+        
+        if(h.image) {
+          document.getElementById('hostelImagePreview').src = h.image;
+          document.getElementById('hostelImagePreview').style.display = '';
+        }
+      }
+      
+      new bootstrap.Modal(document.getElementById('hostelModal')).show();
+    }
+    
+    // Hotel Edit 
+    function editHostel(idx) { openHostelModal(idx); }
+    // Add Building
+    function saveHostel(e) {
+    	showToast('Building add successful...','info');
+        setTimeout(() => {
+            window.location.replace('/owner/Owner');
+        }, 1000);
+      
+      e.preventDefault();
+      const form = document.querySelector('#hostelForm');
+	  const formData = new FormData(form);
+	    fetch('/building/addBuilding', {
+	      method: 'POST',
+	      body: formData
+	    })
+    }
+    
+    document.querySelectorAll('.image-input').forEach(input => {
+    	  input.addEventListener('change', function(e) {
+    	    const file = e.target.files[0];
+    	    const previewId = e.target.getAttribute('data-preview-id');
+    	    if (file && previewId) {
+    	      const reader = new FileReader();
+    	      reader.onload = function(ev) {
+    	        const img = document.getElementById(previewId);
+    	        img.src = ev.target.result;
+    	        img.style.display = '';
+    	      };
+    	      reader.readAsDataURL(file);
+    	    }
+    	  });
+    	});
+    
+    function showHostelDetails(idx) {
+      let h = hostels[idx];
+      document.getElementById('hostelDetailsModalLabel').innerText = h.name;
+      
+      let amenitiesHtml = h.amenities && h.amenities.length > 0 
+        ? h.amenities.map(a => `<span class="badge bg-primary me-1">${a}</span>`).join('')
+        : '<span class="text-muted">No amenities listed</span>';
+      
+      document.getElementById('hostelDetailsBody').innerHTML = `
+        <div class="row">
+          <div class="col-md-6">
+            <img src="${h.image||'https://via.placeholder.com/400?text=No+Image'}" style="width:100%;border-radius:12px;object-fit:cover;">
+          </div>
+          <div class="col-md-6">
+            <h4>${h.name}</h4>
+            <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>${h.location}</p>
+            
+            <div class="d-flex justify-content-between mb-3">
+              <div>
+                <small class="text-muted">STATUS</small>
+                <div><span class="badge bg-${h.status==='Active'?'success':h.status==='Pending'?'warning text-dark':'danger'}">${h.status}</span></div>
+              </div>
+              <div>
+                <small class="text-muted">BOOKINGS</small>
+                <div>${h.bookings}/${h.capacity}</div>
+              </div>
+              <div>
+                <small class="text-muted">PRICE</small>
+                <div>₹${h.price}/night</div>
+              </div>
+              <div>
+                <small class="text-muted">RATING</small>
+                <div>${'★'.repeat(h.rating)}${'☆'.repeat(5-h.rating)}</div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <small class="text-muted">AMENITIES</small>
+              <div>${amenitiesHtml}</div>
+            </div>
+            
+            <div class="mb-3">
+              <small class="text-muted">DESCRIPTION</small>
+              <div>${h.description || 'No description available.'}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      new bootstrap.Modal(document.getElementById('hostelDetailsModal')).show();
+    }
+    
+    function confirmDeleteHostel(idx) {
+      deleteIdx = idx;
+      new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+    
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+      if(deleteIdx !== null) {
+        hostels.splice(deleteIdx,1);
+        renderHostelTable();
+        renderDashboardHostels();
+        showToast('Hostel deleted!','danger');
+        deleteIdx = null;
+        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+      }
+    };
+    
+    function logout() {
+      showToast('Logging out...','info');
+      setTimeout(() => {
+        window.location.replace('/');
+      }, 1000);
+    }
+    
+    // Toasts
+    function showToast(msg,type) {
+      let toast = document.createElement('div');
+      toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
+      toast.role = 'alert';
+      toast.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">${msg}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      `;
+      document.getElementById('toastContainer').appendChild(toast);
+      setTimeout(()=>{
+    	  toast.remove();
+    	  window.location.replace('/owner/Owner');
+    	  }, 1000);
+      const form = document.querySelector('#ownerForm');
+	  const formData = new FormData(form);
+	    fetch('/owner/updateOwner', {
+	      method: 'POST',
+	      body: formData
+	    })
+	    
+    }
+    
+    // Initial Render
+    document.addEventListener('DOMContentLoaded', function() {
+      renderHostelTable();
+      renderDashboardHostels();
+      renderBookingsTable();
+      renderEarningsTable();
+      showTab('dashboard');
+      
+      // Add pulse animation to notification bell
+      setInterval(() => {
+        document.querySelector('.notification-bell').classList.toggle('pulse-animation');
+      }, 4000);
+    });
+  </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const newPassword = document.getElementById("newPassword");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const matchMessage = document.getElementById("matchMessage");
+    const changeBtn = document.getElementById("changeBtn");
+
+    confirmPassword.addEventListener("input", function () {
+      const newVal = newPassword.value;
+      const confirmVal = confirmPassword.value;
+
+      if (confirmVal === "") {
+        matchMessage.textContent = "";
+        changeBtn.disabled = true;
+      } else if (newVal === confirmVal) {
+        matchMessage.textContent = "Passwords match!";
+        matchMessage.style.color = "green";
+        changeBtn.disabled = false;
+      } else {
+        matchMessage.textContent = "Passwords do not match!";
+        matchMessage.style.color = "red";
+        changeBtn.disabled = true;
+      }
+    });
+  });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Elements
+  const profileImage = document.getElementById('profileImage');
+  const uploadBtn = document.getElementById('uploadNewPhoto');
+  const removeBtn = document.getElementById('removePhoto');
+  const viewBtn = document.getElementById('viewCurrentPhoto');
+  const saveBtn = document.getElementById('saveChanges');
+  const fileInput = document.getElementById('imageUpload');
+  const currentPhotoView = document.getElementById('currentPhotoView');
+  
+  // Modals
+  const editorModal = new bootstrap.Modal('#avatarEditorModal');
+  const viewerModal = new bootstrap.Modal('#currentPhotoModal');
+  
+  // State
+  let newImage = null;
+  const defaultImage = 'https://via.placeholder.com/120?text=No+Image';
+
+  // Event Listeners
+  uploadBtn.addEventListener('click', () => fileInput.click());
+  
+  fileInput.addEventListener('change', function(e) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        newImage = event.target.result;
+        saveBtn.disabled = false;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
+  
+  removeBtn.addEventListener('click', () => {
+    newImage = defaultImage;
+    saveBtn.disabled = false;
+  });
+  
+  viewBtn.addEventListener('click', () => {
+    currentPhotoView.src = profileImage.src;
+    viewerModal.show();
+  });
+  
+  saveBtn.addEventListener('click', () => {
+	  if (fileInput.files && fileInput.files[0]) {
+	    const formData = new FormData();
+	    formData.append('ownerImg', fileInput.files[0]); 
+
+	    fetch('/owner/updatePhoto', {
+	      method: 'POST',
+	      body: formData
+	    })
+	    showToast('Profile photo updated successfully!', 'success');
+	    editorModal.hide();
+	    saveBtn.disabled = true;
+	    newImage = null;
+	  }
+	});
+
+});
+</script>
+
+</body>
+</html>

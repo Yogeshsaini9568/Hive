@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="'Property Details - ' + ${property.name}">Property Details</title>
+
+    <!-- Bootstrap 5 CSS CDN (for professional layout) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      .property-header {
+        background-color: #2d6a4f;
+        color: white;
+        padding: 20px;
+        border-radius: 8px 8px 0 0;
+      }
+      .property-title {
+        font-weight: 700;
+        font-size: 2rem;
+      }
+      .amenity-badge {
+        background-color: #4caf50;
+        color: white;
+        margin-right: 6px;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+      }
+      .section-heading {
+        color: #2d6a4f;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        margin-top: 1rem;
+      }
+      .price {
+        font-size: 1.8rem;
+        color: #2d6a4f;
+        font-weight: 700;
+      }
+      .btn-book {
+        background-color: #2d6a4f;
+        color: white;
+      }
+      .btn-book:hover {
+        background-color: #1b3d2c;
+      }
+    </style>
+</head>
+<body>
+<div class="container my-4">
+
+  <!-- Property Header -->
+  <div class="property-header mb-4">
+    <h1 class="property-title" th:text="${property.name}">My Property Name</h1>
+   <!-- th:text="${property.address}" --> <p class="fs-5">123, Some Street, City</p> 
+  </div>
+
+  <div class="row">
+    <!-- Left Column: Images -->
+    <div class="col-md-6 mb-4">
+      <div id="propertyCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <img th:src="@{/property/getImage(id=${property.id},n=1)}" class="d-block w-100 rounded" alt="Image 1" />
+          </div>
+          <div class="carousel-item">
+            <img th:src="@{/property/getImage(id=${property.id},n=2)}" class="d-block w-100 rounded" alt="Image 2" />
+          </div>
+          <div class="carousel-item">
+            <img th:src="@{/property/getImage(id=${property.id},n=3)}" class="d-block w-100 rounded" alt="Image 3" />
+          </div>
+          <div class="carousel-item">
+            <img th:src="@{/property/getImage(id=${property.id},n=4)}" class="d-block w-100 rounded" alt="Image 4" />
+          </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#propertyCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#propertyCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Column: Details -->
+    <div class="col-md-6">
+      <div class="mb-3">
+        <span class="price" >Price: ₹5000</span> <!-- th:text="'Price: ₹' + ${property.price}" -->
+      </div>
+
+      <div class="mb-3">
+        <strong>Description</strong>
+        <p th:text="${property.description}">Property detailed description goes here.</p>
+      </div>
+
+      <div>
+        <h5 class="section-heading">Owner</h5>
+        <p th:text="${property.owner != null} ? ${property.owner.name} : 'Owner info not available'">Owner Name</p>
+        <p><strong>Contact:</strong> <a href="">owner@example.com</a></p> <!-- "'mailto:' + ${property.owner.email}" th:text="${property.owner.email}" -->
+      </div>
+
+      <div>
+        <h5 class="section-heading">Amenities</h5>
+        <div>
+         <!--  <span th:each="amenity : ${property.amenities}" class="amenity-badge" th:text="${amenity}">WiFi</span>
+          Agar tumhare paas amenity list nai hai, to niche jaise boolean flags check karo
+          <span th:if="${property.amenity.ac}" class="amenity-badge">AC</span>
+          <span th:if="${property.amenity.wifi}" class="amenity-badge">WiFi</span>
+          <span th:if="${property.amenity.parking}" class="amenity-badge">Parking</span> -->
+          <!-- aur baaki amenities -->
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <a th:href="@{/property/book/{id}(id=${property.id})}" class="btn btn-book btn-lg w-100">Book Now</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bootstrap 5 JS Bundle (Popper + Bootstrap JS) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Property</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Optional: For custom styling -->
+    <style>
+      body {
+        background: #f2f4f8
+        		url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
+		no-repeat center center/cover;
+        min-height: 100vh;
+      }
+      .card {
+        background: rgba(255,255,255,0.92);
+        border-radius: 1rem;
+        box-shadow: 0 4px 40px rgba(0,0,0,0.18);
+        padding: 2rem;
+      }
+      .form-label {
+        font-weight: 600;
+      }
+      .form-control, .form-select {
+        border-radius: .5rem;
+      }
+      .btn-primary {
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+    </style>
+</head>
+<body>
+  <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="col-md-6 col-lg-5 mx-auto">
+      <div class="card p-4">
+        <div class="card-body">
+          <h3 class="mb-4 text-center text-primary fw-bold">Add New Property</h3>
+          <form th:action="@{/property/addProperty}" method="post" enctype="multipart/form-data">
+            <!-- Name -->
+            <div class="mb-3">
+              <label for="name" class="form-label">Property Name</label>
+              <input type="text" id="name" name="name" class="form-control" required placeholder="Enter property name">
+            </div>
+            
+            <!-- Type -->
+            <div class="mb-3">
+              <label for="type" class="form-label">Property Type</label>
+              <select id="type" name="type" class="form-select" required>
+                <option value="">Select type</option>
+                <option value="Flat">Flat</option>
+                <option value="Hostel">Hostel</option>
+                <option value="House">House</option>
+                <option value="PG">PG</option>
+              </select>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea id="description" name="description" class="form-control" rows="4" required placeholder="Describe the property"></textarea>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-primary">Add Property</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Bootstrap JS (Optional, for some components) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

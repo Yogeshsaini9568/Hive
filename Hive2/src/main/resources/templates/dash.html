@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard | HIVE Student Accommodation</title>
+  <link rel="icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --hive-primary: #1a1a1a;
+      --hive-secondary: #759dc3;
+      --hive-light: #f9f9f9;
+      --hive-card-bg: #ffffff;
+      --hive-border-radius: 10px;
+      --hive-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --hive-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --hive-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+      --hive-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--hive-light);
+      color: var(--hive-primary);
+    }
+    
+    /* Main Navigation - Matches Index Page */
+    .navbar-hive {
+      background: var(--hive-card-bg);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 0.5rem 1rem;
+    }
+    
+    .navbar-hive .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--hive-primary);
+    }
+    
+    .navbar-hive .nav-link {
+      font-weight: 500;
+      color: var(--hive-primary);
+      padding: 0.5rem 1rem;
+    }
+    
+    .navbar-hive .nav-link:hover, 
+    .navbar-hive .nav-link.active {
+      color: var(--hive-secondary);
+    }
+    
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--hive-secondary);
+    }
+    
+    /* Dashboard Layout */
+    .dashboard-container {
+      display: flex;
+      min-height: calc(100vh - 60px);
+    }
+    
+    /* Sidebar */
+    .dashboard-sidebar {
+      width: 280px;
+      background: var(--hive-card-bg);
+      border-right: 1px solid rgba(0,0,0,0.05);
+      padding: 1.5rem 0;
+    }
+    
+    .sidebar-header {
+      padding: 0 1.5rem 1.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .sidebar-user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--hive-secondary);
+    }
+    
+    .sidebar-user-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .sidebar-user-email {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+    
+    .sidebar-menu {
+      padding: 0 1rem;
+    }
+    
+    .sidebar-item {
+      margin-bottom: 0.25rem;
+    }
+    
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-radius: var(--hive-border-radius);
+      color: var(--hive-primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--hive-transition);
+    }
+    
+    .sidebar-link:hover, .sidebar-link.active {
+      background: rgba(255, 193, 7, 0.1);
+      color: var(--hive-primary);
+    }
+    
+    .sidebar-link.active {
+      font-weight: 600;
+      background: rgba(255, 193, 7, 0.15);
+      border-left: 3px solid var(--hive-secondary);
+    }
+    
+    .sidebar-link i {
+      margin-right: 12px;
+      font-size: 1.1rem;
+      width: 24px;
+      text-align: center;
+      color: var(--hive-secondary);
+    }
+    
+    .badge-notification {
+      font-size: 0.7rem;
+      padding: 0.35em 0.6em;
+      margin-left: auto;
+      font-weight: 500;
+    }
+    
+    /* Main Content */
+    .dashboard-content {
+      flex: 1;
+      padding: 2rem;
+      background-color: var(--hive-light);
+    }
+    
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    
+    .dashboard-title {
+      font-weight: 700;
+      margin: 0;
+      color: var(--hive-primary);
+    }
+    
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: var(--hive-card-bg);
+      border-radius: var(--hive-border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--hive-shadow);
+      transition: var(--hive-transition);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--hive-shadow-lg);
+    }
+    
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--hive-border-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      background: rgba(255, 193, 7, 0.1);
+      color: var(--hive-secondary);
+    }
+    
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+    
+    /* Accommodation Section */
+    .accommodation-section {
+      background: var(--hive-card-bg);
+      border-radius: var(--hive-border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--hive-shadow);
+      margin-bottom: 2rem;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .view-all {
+      color: var(--hive-secondary);
+      font-weight: 500;
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: var(--hive-transition);
+    }
+    
+    .view-all:hover {
+      color: var(--hive-primary);
+      gap: 0.5rem;
+    }
+    
+    /* Current Accommodation */
+    .current-accommodation {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 1.5rem;
+      background: var(--hive-card-bg);
+      border-radius: var(--hive-border-radius);
+      box-shadow: var(--hive-shadow);
+    }
+    
+    .accommodation-img {
+      width: 200px;
+      height: 140px;
+      border-radius: var(--hive-border-radius);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    
+    .accommodation-details {
+      flex: 1;
+    }
+    
+    .accommodation-title {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .accommodation-location {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .accommodation-location i {
+      color: var(--hive-secondary);
+    }
+    
+    .accommodation-meta {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .meta-item i {
+      color: var(--hive-secondary);
+    }
+    
+    .accommodation-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    /* Saved Accommodations */
+    .property-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .property-card {
+      background: var(--hive-card-bg);
+      border-radius: var(--hive-border-radius);
+      overflow: hidden;
+      box-shadow: var(--hive-shadow);
+      transition: var(--hive-transition);
+    }
+    
+    .property-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--hive-shadow-lg);
+    }
+    
+    .property-img {
+      height: 180px;
+      object-fit: cover;
+      width: 100%;
+    }
+    
+    .property-body {
+      padding: 1.25rem;
+    }
+    
+    .property-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .property-price {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .property-features {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .property-feature {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: #6c757d;
+    }
+    
+    .property-feature i {
+      color: var(--hive-secondary);
+    }
+    
+    .property-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    /* Buttons */
+    .btn-hive-primary {
+      background-color: var(--hive-secondary);
+      border-color: var(--hive-secondary);
+      color: var(--hive-primary);
+      font-weight: 500;
+      transition: var(--hive-transition);
+    }
+    
+    /* .btn-hive-primary:hover {
+      background-color: #6c7cad;
+      border-color: #665585;
+      transform: translateY(-2px);
+    } */
+    
+    .btn-hive-outline {
+      border-color: var(--hive-secondary);
+      color: var(--hive-secondary);
+      font-weight: 500;
+      transition: var(--hive-transition);
+    }
+    
+    .btn-hive-outline:hover {
+      background-color: rgba(255, 193, 7, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .dashboard-sidebar {
+        width: 240px;
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .dashboard-container {
+        flex-direction: column;
+      }
+      
+      .dashboard-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+      }
+      
+      .current-accommodation {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .accommodation-img {
+        width: 100%;
+        height: auto;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-content {
+        padding: 1.5rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .property-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .accommodation-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .accommodation-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Main Navigation - Matches Index Page -->
+  <nav class="navbar navbar-expand-lg navbar-hive">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="./AfterLogin.html">HIVE</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/user/AfterLogin}">Home</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Find Accommodation</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="Hostels.html">Hostels</a></li>
+              <li><a class="dropdown-item" href="Pg.html">PGs</a></li>
+              <li><a class="dropdown-item" href="Flat.html">Flats</a></li>
+              <li><a class="dropdown-item" href="House.html">Houses</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Help Center</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              <img th:src="@{/user/getPhoto}" class="user-avatar me-1">
+              <span th:text="${session.user.name}"></span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" th:href="@{user/dash}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+              <li><a class="dropdown-item" href="./profileEdit.html"><i class="bi bi-person me-2"></i>Profile</a></li>
+              <li><a class="dropdown-item" href="./AfterLogin.html"><i class="bi bi-gear me-2"></i>Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" th:href="@{/logout}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Container -->
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user">
+          <img th:src="@{/user/getPhoto}" class="sidebar-user-avatar">
+          <div>
+            <div class="sidebar-user-name">
+              <spam th:text="${session.user.name}"></spam>
+              <!-- Edit icon placed next to the name -->
+              <a th:href="@{/user/profileEdit}" class="ms-2 text-primary" title="Edit Profile">
+                <i class="bi bi-pencil-square"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      
+      <div class="sidebar-menu">
+        <div class="sidebar-item">
+          <a class="sidebar-link active" href="./dash.html">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        <div class="sidebar-item">
+          <a class="sidebar-link" href="./my-accommodation.html">
+            <i class="bi bi-house-door"></i>
+            <span>My Accommodation</span>
+          </a>
+        </div>
+        <div class="sidebar-item">
+          <a class="sidebar-link" href="saved-properties.html">
+            <i class="bi bi-heart"></i>
+            <span>Saved Properties</span>
+            <span class="badge bg-warning text-dark badge-notification ms-auto">3</span>
+          </a>
+        </div>
+        <div class="sidebar-item">
+          <a class="sidebar-link" href="./AfterLogin.html">
+            <i class="bi bi-credit-card"></i>
+            <span>Payments</span>
+          </a>
+        </div>
+        <div class="sidebar-item">
+          <a class="sidebar-link" href="./AfterLogin.html">
+            <i class="bi bi-tools"></i>
+            <span>Maintenance</span>
+            <span class="badge bg-warning text-dark badge-notification ms-auto">2</span>
+          </a>
+        </div>
+        <div class="sidebar-item">
+          <a class="sidebar-link" href="./AfterLogin.html">
+            <i class="bi bi-chat-dots"></i>
+            <span>Messages</span>
+            <span class="badge bg-danger badge-notification ms-auto">3</span>
+          </a>
+        </div>
+        <div class="sidebar-item mt-4">
+          <a class="sidebar-link" href="./AfterLogin.html">
+            <i class="bi bi-gear"></i>
+            <span>Settings</span>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-content">
+      <div class="dashboard-header">
+        <h1 class="dashboard-title">Dashboard</h1>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary position-relative">
+            <i class="bi bi-bell"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              3
+            </span>
+          </button>
+          <button class="btn btn-hive-primary">
+            <i class="bi bi-plus-lg me-1"></i> New Request
+          </button>
+        </div>
+      </div>
+      
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-calendar-check"></i>
+          </div>
+          <div class="stat-value">12</div>
+          <div class="stat-label">Days Until Next Payment</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <div class="stat-value">3</div>
+          <div class="stat-label">Completed Requests</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
+          <div class="stat-value">2</div>
+          <div class="stat-label">Pending Requests</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="bi bi-chat-left-text"></i>
+          </div>
+          <div class="stat-value">3</div>
+          <div class="stat-label">Unread Messages</div>
+        </div>
+      </div>
+      
+      <!-- Current Accommodation -->
+      <div class="accommodation-section">
+        <div class="section-header">
+          <h2 class="section-title">My Current Accommodation</h2>
+          <a href="my-accommodation.html" class="view-all">
+            View Details <i class="bi bi-chevron-right"></i>
+          </a>
+        </div>
+        
+        <div class="current-accommodation">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" class="accommodation-img">
+          <div class="accommodation-details">
+            <h3 class="accommodation-title">Sunrise Hostel - Premium Room</h3>
+            <div class="accommodation-location">
+              <i class="bi bi-geo-alt"></i> Saket, Delhi • Boys Hostel
+            </div>
+            <div class="accommodation-meta">
+              <div class="meta-item">
+                <i class="bi bi-calendar"></i> Contract until: 15 May 2024
+              </div>
+              <div class="meta-item">
+                <i class="bi bi-cash-stack"></i> ₹5,500/month
+              </div>
+              <div class="meta-item">
+                <i class="bi bi-star"></i> 4.2 (32 reviews)
+              </div>
+              <div class="meta-item">
+                <i class="bi bi-people"></i> 3 Roommates
+              </div>
+            </div>
+            <div class="accommodation-actions">
+              <button class="btn btn-hive-primary">
+                <i class="bi bi-house-gear me-1"></i> Request Maintenance
+              </button>
+              <button class="btn btn-hive-outline">
+                <i class="bi bi-telephone me-1"></i> Contact Warden
+              </button>
+              <button class="btn btn-hive-outline">
+                <i class="bi bi-file-text me-1"></i> View Contract
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Saved Accommodations -->
+      <div class="accommodation-section">
+        <div class="section-header">
+          <h2 class="section-title">Saved Accommodations</h2>
+          <a href="saved-properties.html" class="view-all">
+            View All <i class="bi bi-chevron-right"></i>
+          </a>
+        </div>
+        
+        <div class="property-grid">
+          <!-- Property 1 -->
+          <div class="property-card">
+            <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" class="property-img" alt="Sunrise Hostel">
+            <div class="property-body">
+              <h5 class="property-title">Sunrise Hostel</h5>
+              <div class="property-price">₹5,500 / month</div>
+              <div class="property-features">
+                <span class="property-feature">
+                  <i class="bi bi-geo-alt"></i> Delhi
+                </span>
+                <span class="property-feature">
+                  <i class="bi bi-gender-male"></i> Boys
+                </span>
+                <span class="property-feature">
+                  <i class="bi bi-star"></i> 4.2
+                </span>
+              </div>
+              <div class="property-actions">
+                <a href="./AfterLogin.html" class="btn btn-hive-outline btn-sm">View Details</a>
+                <button class="btn btn-outline-danger btn-sm">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Property 2 -->
+          <div class="property-card">
+            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" class="property-img" alt="GreenNest Hostel">
+            <div class="property-body">
+              <h5 class="property-title">GreenNest Hostel</h5>
+              <div class="property-price">₹6,000 / month</div>
+              <div class="property-features">
+                <span class="property-feature">
+                  <i class="bi bi-geo-alt"></i> Pune
+                </span>
+                <span class="property-feature">
+                  <i class="bi bi-gender-female"></i> Girls
+                </span>
+                <span class="property-feature">
+                  <i class="bi bi-star"></i> 4.5
+                </span>
+              </div>
+              <div class="property-actions">
+                <a href="property-details.html" class="btn btn-hive-outline btn-sm">View Details</a>
+                <button class="btn btn-outline-danger btn-sm">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Property 3 -->
+          <div class="property-card">
+            <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" class="property-img" alt="Smart Living PG">
+            <div class="property-body">
+              <h5 class="property-title">Smart Living PG</h5>
+              <div class="property-price">₹8,200 / month</div>
+              <div class="property-features">
+                <span class="property-feature">
+                  <i class="bi bi-geo-alt"></i> Bangalore
+                </span>
+                <span class="property-feature">
+                  <i class="bi bi-people"></i> Co-ed
+                </span>
+                <span class="property-feature">
+                  <i class="bi bi-star"></i> 4.0
+                </span>
+              </div>
+              <div class="property-actions">
+                <a href="./AfterLogin.html" class="btn btn-hive-outline btn-sm">View Details</a>
+                <button class="btn btn-outline-danger btn-sm">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Activate sidebar items
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      if(link.href === window.location.href) {
+        link.classList.add('active');
+      }
+   
+      link.addEventListener('click', function() {
+        document.querySelectorAll('.sidebar-link').forEach(item => {
+          item.classList.remove('active');
+        });
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
