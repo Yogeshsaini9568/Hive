@@ -38,5 +38,5 @@ public class Property {
     private byte[] electricityBill;
     private List<Room> rooms;
     
-    private Owner owner;
+    private String ownerEmail;
 }

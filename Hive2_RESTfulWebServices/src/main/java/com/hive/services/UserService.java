@@ -1,24 +1,18 @@
 package com.hive.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hive.models.User;
-import com.hive.repo.UserRepo;
+import com.hive.repo.UserCustomRepo;
 
 @Service
 public class UserService {
 
 	@Autowired
-	UserRepo userRepo;
-	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	UserCustomRepo userRepo;
 	
 	public boolean register(User user) {
-		// Hash password before saving
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return userRepo.register(user);
 	}
 
@@ -39,9 +33,7 @@ public class UserService {
 	}
 
 	public boolean updatePassword(String userEmail, String newPassword) {
-		// Hash new password before updating
-		String hashedPassword = passwordEncoder.encode(newPassword);
-		return userRepo.updatePassword(userEmail, hashedPassword);
+		return userRepo.updatePassword(userEmail,newPassword);
 	}
 
 }

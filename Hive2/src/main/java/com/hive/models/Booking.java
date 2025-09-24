@@ -14,15 +14,16 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Booking {
-    private int id;
-    private int userId;
-    private int buildingId;
-    private String checkinDate;
-    private String status;
-    private Date bookingDate;
-    private int numberOfMonths;
-    private Date checkoutDate;
-    private int amount;
-    private int transitionID;
-    private String paymentMode;
+	private int id;
+	private String userEmail;
+	private int propertyId;
+	private String ownerEmail;
+	private Date checkinDate;
+	private String status;
+	private Date bookingDate;
+	private int numberOfMonths;
+	private Date checkoutDate;
+	private int amount;
+	private int transitionID;
+	private String paymentMode;
 }

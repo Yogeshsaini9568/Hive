@@ -710,7 +710,7 @@
     <ul class="nav flex-column mb-auto">
       <li class="nav-item"><a class="nav-link active" onclick="showTab('dashboard')"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
       <li class="nav-item"><a class="nav-link"  onclick="showTab('hostels')"><i class="fas fa-building"></i><span>My Hostels</span></a></li>
-      <li class="nav-item"><a class="nav-link"  onclick="showTab('bookings')"><i class="fas fa-calendar-check"></i><span>Bookings</span></a></li>
+      <li class="nav-item"><a class="nav-link" th:href="@{/owner/manageBooking}"  ><i class="fas fa-calendar-check"></i><span>Bookings</span></a></li> <!-- onclick="showTab('bookings')" -->
       <li class="nav-item"><a class="nav-link"  onclick="showTab('earnings')"><i class="fas fa-wallet"></i><span>Earnings</span></a></li>
       <li class="nav-item"><a class="nav-link"  onclick="showTab('analytics')"><i class="fas fa-chart-line"></i><span>Analytics</span></a></li>
       <li class="nav-item"><a class="nav-link"  onclick="showTab('account')"><i class="fas fa-user-cog"></i><span>Account</span></a></li>
@@ -1239,17 +1239,19 @@
   </div>
 </div>
 <br>
-          <div class="card card-hover-effect">
+  <div class="card card-hover-effect">
   <div class="card-header bg-transparent border-bottom">
     <h5 class="mb-0">SECURITY</h5>
   </div>
   <div class="card-body">
+  <form th:action="@{/owner/updatePassword}" method="post">
     <div class="mb-3">
+      <input type="hidden" name="email" th:value="${session.owner.email}">
       <label class="form-label">Current Password</label>
-      <input type="password" id="currentPassword" class="form-control input-focus-effect">
+      <input type="password" name="ownerPassword" id="currentPassword" class="form-control input-focus-effect">
 
       <label class="form-label">New Password</label>
-      <input type="password" id="newPassword" class="form-control input-focus-effect">
+      <input type="password" name="newPassword" id="newPassword" class="form-control input-focus-effect">
 
       <label class="form-label">Confirm New Password</label>
       <input type="password" id="confirmPassword" class="form-control input-focus-effect">
@@ -1261,6 +1263,7 @@
     <button class="btn btn-primary w-100" id="changeBtn" disabled>
       <i class="fas fa-key me-2"></i>Change Password
     </button>
+    </form>
   </div>
 </div>
           
@@ -1276,34 +1279,42 @@
                 <div class="row mb-3">
                   <div class="col-md-6">
                     <label class="form-label">Full Name</label>
-                    <input type="text" name="ownerName" class="form-control input-focus-effect" th:value="${session.owner.name}">
+                    <input type="text" name="name" class="form-control input-focus-effect" th:value="${session.owner.name}">
                   </div>
 	              <div class="col-md-6">
 	                <label class="form-label">Email</label>
-	                <input type="email" name="ownerEmail" class="form-control input-focus-effect" th:value="${session.owner.email}" readonly>
+	                <input type="email" name="email" class="form-control input-focus-effect" th:value="${session.owner.email}" readonly>
 	              </div>    
                   <div class="col-md-6">
                     <label class="mt-3">Phone</label>
-                    <input type="tel" name="ownerPhoneNumber" class="form-control input-focus-effect" th:value="${session.owner.phone}">
+                    <input type="tel" name="phone" class="form-control input-focus-effect" th:value="${session.owner.phone}">
                   </div>
                   <div class="col-md-6">
 				    <label class="mt-3" for="birthday">Date of Birth</label>
-				    <input type="date" name="ownerDob" id="birthday" class="form-control input-focus-effect" 
+				    <input type="date" name="dob" id="birthday" class="form-control input-focus-effect" 
 				      onfocus="this.max=new Date().toISOString().split('T')[0]" 
 				      th:value="${session.owner.dob != null ? #dates.format(session.owner.dob, 'yyyy-MM-dd') : ''}"  required>
 				  </div>
                   <div class="col-md-6 mt-3"><label for="gender">Gender</label>
                     <select name="gender" id="gender" class="form-control input-focus-effect">
-                      <option th:value="${session.owner.gender}" th:text="${session.owner.gender}"></option>
+                      <option th:value="${session.owner.gender !=null ? session.owner.gender : ''}" th:text="${session.owner.gender !=null ? session.owner.gender : ''}"></option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
                     </select>
                   </div>
                   <br>
-<!--                   <div class="col-md-6 mt-3"><label for="country">Country</label>
-                    <select id="country" name="ownerCountry" class="form-control input-focus-effect">
-			          <option th:value="${session.owner.ownerCountry}" th:text="${session.owner.ownerCountry}"></option>
+                  <div class="col-md-6 full-width">
+			           <label class="mt-3" for="address">House No.</label>
+			           <input type="text" id="address" name="houseNo" class="form-control input-focus-effect" th:value="${session.owner.address != null ? session.owner.address.houseNo : ''}">
+	               </div>
+	               <div class="col-md-6 full-width">
+			           <label class="mt-3" for="address">Sector</label>
+			           <input type="text" id="address" name="sector" class="form-control input-focus-effect" th:value="${session.owner.address != null ? session.owner.address.sector : ''}">
+	               </div>
+                   <div class="col-md-6 mt-3"><label for="country">Country</label>
+                    <select id="country" name="country" class="form-control input-focus-effect">
+			          <option th:value="${session.owner.address != null ? session.owner.address.country : ''}" th:text="${session.owner.address != null ? session.owner.address.country : ''}"></option>
 			          <option value="India">India</option>
 			          <option value="United Kingdom">United Kingdom</option>
                       <option value="Canada">Canada</option>
@@ -1313,8 +1324,8 @@
                   </div>
                   <div class="col-md-6">
 			         <label class="mt-3" for="State">State</label>
-			         <select id="State" name="ownerState" class="form-control input-focus-effect">
-	                   <option th:value="${session.owner.ownerState}" th:text="${session.owner.ownerState}"></option>
+			         <select id="state" name="state" class="form-control input-focus-effect">
+	                   <option th:value="${session.owner.address != null ? session.owner.address.state : ''}" th:text="${session.owner.address != null ? session.owner.address.state : ''}"></option>
 		               <option value="Uttar-Pradesh">Uttar Pradesh</option>
 	                   <option value="Bihar">Bihar</option>
 	                   <option value="Delhi">Delhi</option>
@@ -1323,16 +1334,12 @@
 		           </div>
 			       <div class="col-md-6">
 			            <label class="mt-3" for="city">City</label>
-		                <input type="text" id="city" name="ownerCity" class="form-control input-focus-effect" th:value="${session.owner.ownerCity}">
-	               </div>
-	                <div class="col-md-6 full-width">
-			           <label class="mt-3" for="address">Street Address</label>
-			           <input type="text" id="address" name="ownerStreet" class="form-control input-focus-effect" th:value="${session.owner.ownerStreet}">
+		                <input type="text" id="city" name="city" class="form-control input-focus-effect" th:value="${session.owner.address != null ? session.owner.address.city : ''}">
 	               </div>	
 			       <div class="col-md-6">
 			            <label class="mt-3" for="postal">Pin Code</label>
-			            <input type="text" id="postal" name="ownerPincode" class="form-control input-focus-effect" th:value="${session.owner.ownerPincode}">
-		           </div> -->
+			            <input type="text" id="postal" name="pincode" class="form-control input-focus-effect" th:value="${session.owner.address != null ? session.owner.address.pincode : ''}">
+		           </div>
                 </div>  
                 <button class="btn btn-primary" type="button" onclick="showToast('Account updated!','success')"><i class="fas fa-save me-2"></i>Save Changes</button>
               </form>
@@ -1892,6 +1899,8 @@
     	  toast.remove();
     	  window.location.replace('/owner/Owner');
     	  }, 1000);
+      
+      // Update profile
       const form = document.querySelector('#ownerForm');
 	  const formData = new FormData(form);
 	    fetch('/owner/updateOwner', {

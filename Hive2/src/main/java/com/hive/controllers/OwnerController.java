@@ -4,7 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +19,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.hive.models.Address;
+import com.hive.models.Booking;
 import com.hive.models.Owner;
 
 import jakarta.servlet.ServletResponse;
@@ -41,6 +49,19 @@ public class OwnerController {
 	@GetMapping("/addProperty")
 	public String addProperty() {
 		return "addProperty";
+	}
+	
+	@GetMapping("/manageBooking")
+	public String manageBooking(HttpSession session, ModelMap m) {
+		Owner owner = (Owner) session.getAttribute("owner");
+		if(owner!=null) {
+			String API="/manageBooking/"+owner.getEmail();
+			ResponseEntity<List<Booking>> result= restTemplate.exchange(URL+API,HttpMethod.POST,null,new ParameterizedTypeReference<>(){});
+			List<Booking> bookings=result.getBody();
+			m.addAttribute("bookings", bookings);
+			return "manageBooking";
+		}
+		return "OwnerLogin";
 	}
 	
 	@PostMapping("/register")
@@ -71,35 +92,37 @@ public class OwnerController {
 			return "OwnerLogin";
 		}
 	}
-//	
-//	@PostMapping("/updateOwner")
-//	public String updateOwner(HttpSession session, @ModelAttribute Owner owner, ModelMap m) {
-//		String API = "/updateOwner";
-//		HttpEntity<Owner> requestEntity = new HttpEntity<Owner>(owner);
-//		ResponseEntity<Owner> result = restTemplate.exchange(URL + API, HttpMethod.PUT, requestEntity, Owner.class);
-//		if (result.getBody() != null) {
-//			session.setAttribute("owner", result.getBody());
-//			m.addAttribute("msg", "Updation Success!");
-//		} else {
-//			m.addAttribute("msg", "Updation Failed!");
-//		}
-//		return "redirect:/owner/Owner";
-//	}
-//
-//	@PostMapping("/updatePhoto")
-//	public String updatePhoto(HttpSession session, @RequestPart MultipartFile ownerImg, ModelMap m) throws IOException {
-//		Owner owner = (Owner) session.getAttribute("owner");
-//		String API = "/updatePhoto/" + owner.getOwnerEmail();
-//		HttpEntity<byte[]> requestEntity = new HttpEntity<>(ownerImg.getBytes());
-//		restTemplate.put(URL + API, requestEntity);
-//		m.addAttribute("msg", "Photo updated successfully!");
-//		API = "/getOwner/" + owner.getOwnerEmail();
-//		ResponseEntity<Owner> result = restTemplate.exchange(URL + API, HttpMethod.GET, null, Owner.class);
-//		owner = result.getBody();
-//		session.setAttribute("owner", owner);
-//		return "redirect:/owner/Owner";
-//	}
-//
+	
+	@PostMapping("/updateOwner")
+	public String updateOwner(HttpSession session, @ModelAttribute Owner owner,@ModelAttribute Address address, ModelMap m) {
+		String API = "/updateOwner";
+		owner.setAddress(address);
+		HttpEntity<Owner> requestEntity = new HttpEntity<Owner>(owner);
+		ResponseEntity<Owner> result = restTemplate.exchange(URL + API, HttpMethod.PUT, requestEntity, Owner.class);
+		if (result.getBody() != null) {
+			session.setAttribute("owner", result.getBody());
+			m.addAttribute("msg", "Updation Success!");
+		} else {
+			m.addAttribute("msg", "Updation Failed!");
+		}
+		return "redirect:/owner/Owner";
+	}
+
+	@PostMapping("/updatePhoto")
+	public String updatePhoto(HttpSession session, @RequestPart MultipartFile ownerImg, ModelMap m) throws IOException {
+		Owner owner = (Owner) session.getAttribute("owner");
+		String API = "/updatePhoto";
+		owner.setPhoto(ownerImg.getBytes());
+		HttpEntity<Owner> requestEntity = new HttpEntity<>(owner);
+		ResponseEntity<Owner> result=restTemplate.exchange(URL + API,HttpMethod.PUT, requestEntity,Owner.class);
+		owner = result.getBody();
+		if(owner!=null) {
+			session.setAttribute("owner", owner);
+			m.addAttribute("msg", "Photo updated successfully!");
+		}
+		return "redirect:/owner/Owner";
+	}
+
 	@GetMapping("/getPhoto")
 	public void getPhoto(HttpSession session, ServletResponse response) throws IOException {
 		Owner owner = (Owner) session.getAttribute("owner");
@@ -112,33 +135,35 @@ public class OwnerController {
 		}
 		response.getOutputStream().write(image);
 	}
-//
-//	@PostMapping("/updatePassword")
-//	public String updatePassword(@RequestParam String ownerEmail, @RequestParam String ownerPassword,
-//			@RequestParam String newPassword, HttpSession session, ModelMap m) {
-//		String API = "/getOwner/" + ownerEmail;
-//		ResponseEntity<Owner> result = restTemplate.exchange(URL + API, HttpMethod.GET, null, Owner.class);
-//		Owner owner = result.getBody();
-//		if (owner != null && owner.getOwnerPassword().equalsIgnoreCase(ownerPassword)) {
-//
-//			Map<String, String> data = new HashMap<>();
-//			data.put("ownerEmail", ownerEmail);
-//			data.put("newPassword", newPassword);
-//
-//			HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(data);
-//			API = "/updatePassword";
-//			ResponseEntity<Boolean> r = restTemplate.exchange(URL + API, HttpMethod.PUT, requestEntity, Boolean.class);
-//			if (r.getBody()) {
-//				m.addAttribute("msg", "Password Updation Success!");
-//			} else {
-//				session.invalidate();
-//				return "redirect:/OwnerLogin";
-//			}
-//		} else {
-//			m.addAttribute("msg", "Invalid OLD Password!");
-//		}
-//		return "Owner";
-//	}
-//
-//	
+
+	@PostMapping("/updatePassword")
+	public String updatePassword(@RequestParam String email, @RequestParam String ownerPassword,
+			@RequestParam String newPassword, HttpSession session, ModelMap m) {
+		String API = "/getOwner/" + email;
+		ResponseEntity<Owner> result = restTemplate.exchange(URL + API, HttpMethod.GET, null, Owner.class);
+		Owner owner = result.getBody();
+		if (owner != null && owner.getPassword().equals(ownerPassword)) {
+
+			Map<String, String> data = new HashMap<>();
+			data.put("email", email);
+			data.put("newPassword", newPassword);
+
+			HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(data);
+			API = "/updatePassword";
+			ResponseEntity<Owner> r = restTemplate.exchange(URL + API, HttpMethod.PUT, requestEntity, Owner.class);
+			Owner o=r.getBody();
+			if (o!=null) {
+				session.setAttribute("owner", o);
+				m.addAttribute("msg", "Password Updation Success!");
+			} else {
+				session.invalidate();
+				return "redirect:/OwnerLogin";
+			}
+		} else {
+			m.addAttribute("msg", "Invalid OLD Password!");
+		}
+		return "Owner";
+	}
+	
+	
 }

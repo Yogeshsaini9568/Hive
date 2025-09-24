@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
+
 @Controller
 @RequestMapping("/property")
 public class PropertyController {
@@ -39,13 +40,7 @@ public class PropertyController {
 		}
 		return "OwnerLogin";
 	}
-	@GetMapping("/addRoomss")
-	public String addRoomss(HttpSession session) {
-		if(session.getAttribute("owner")!=null) {
-			return "addRoom";
-		}
-		return "OwnerLogin";
-	}
+
 	@GetMapping("/addImages")
 	public String addImages(int id,HttpSession session) {
 		if(session.getAttribute("owner")!=null) {
@@ -103,11 +98,7 @@ public class PropertyController {
 				Owner updatedOwner = propertyService.addProperty(property, owner);
 				if (updatedOwner != null) {
 					session.setAttribute("owner", updatedOwner);
-					List<Property> properties = propertyService.getPropertiesByOwner(updatedOwner.getEmail());
-					if (properties != null) {
-						m.addAttribute("properties", properties);
-						return "AllProperty";
-					}
+					return AllProperty(session, m);
 				}
 			}
 		} catch (Exception e) {
@@ -122,10 +113,7 @@ public class PropertyController {
 		try {
 			Owner owner = propertyService.addRoom(pid, room, amenity);
 			if (owner != null) {
-				List<Property> properties = propertyService.getPropertiesByOwner(owner.getEmail());
-				if (properties != null) {
-					m.addAttribute("properties", properties);
-				}
+				return AllProperty(session, m);
 			}
 		} catch (Exception e) {
 			// Log error in production
@@ -139,6 +127,7 @@ public class PropertyController {
 			if (propertyService.uploadPropertyImages(id, images)) {
 				return AllProperty(session, m);
 			}
+			
 		} catch (Exception e) {
 			// Log error in production
 		}
@@ -150,7 +139,6 @@ public class PropertyController {
 		try {
 			List<byte[]> images = propertyService.getPropertyImages(id);
 			byte[] image = null;
-			
 			if (images != null && images.size() >= n) {
 				switch(n) {
 					case 1: image = images.get(0); break;
@@ -159,7 +147,6 @@ public class PropertyController {
 					case 4: image = images.get(3); break;
 				}
 			}
-			
 			if (image == null || image.length == 0) {
 				InputStream is = this.getClass().getClassLoader().getResourceAsStream("static/images/h1.jpg");
 				image = is.readAllBytes();
@@ -187,16 +174,21 @@ public class PropertyController {
 	}
 	
 	@GetMapping("/viewdetails")
-	public String viewdetails(@RequestParam int id, ModelMap m) {
-		try {
-			Property property = propertyService.getProperty(id);
-			if (property != null) {
-				m.addAttribute("property", property);
+	public String viewdetails(@RequestParam int id,HttpSession session, ModelMap m) {
+		if(session.getAttribute("user")!=null) {
+			try {
+				Property property = propertyService.getProperty(id);
+				Owner owner=propertyService.getOwner(property.getOwnerEmail());
+				if (property != null || owner!=null) {
+					m.addAttribute("property", property);
+					m.addAttribute("name", owner.getName());
+				}
+			} catch (Exception e) {
+				// Log error in production
 			}
-		} catch (Exception e) {
-			// Log error in production
+			return "viewDetail";
 		}
-		return "viewDetail";
+		return "redirect:/LoginPage";
 	}
 	
 	

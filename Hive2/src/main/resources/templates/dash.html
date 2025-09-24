@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
   <style>
     :root {
       --hive-primary: #1a1a1a;
@@ -536,13 +537,13 @@
           </a>
         </div>
         <div class="sidebar-item">
-          <a class="sidebar-link" href="./my-accommodation.html">
+          <a class="sidebar-link" th:href="@{/user/userBooking}">
             <i class="bi bi-house-door"></i>
             <span>My Accommodation</span>
           </a>
         </div>
         <div class="sidebar-item">
-          <a class="sidebar-link" href="saved-properties.html">
+          <a class="sidebar-link" th:href="saved-properties.html">
             <i class="bi bi-heart"></i>
             <span>Saved Properties</span>
             <span class="badge bg-warning text-dark badge-notification ms-auto">3</span>
@@ -783,5 +784,12 @@
       });
     });
   </script>
+  <script type="module">
+	import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+	createChat({
+		webhookUrl: 'https://yogeshsaini9568.app.n8n.cloud/webhook/e3cfb681-c0dc-4d5e-869c-d667fe35a31a/chat'
+	});
+</script>
 </body>
 </html>

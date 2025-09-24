@@ -18,12 +18,13 @@ public class Booking {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-	private int userId;
-	private int buildingId;
+	private String userEmail;
+	private int propertyId;
+	private String ownerEmail;
 	private Date checkinDate;
 	private String status;
 	private Date bookingDate;
-	private int numberOfMOnths;
+	private int numberOfMonths;
 	private Date checkoutDate;
 	private int amount;
 	private int transitionID;

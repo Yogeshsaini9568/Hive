@@ -1,9 +1,14 @@
 package com.hive.services;
 
+import java.sql.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.hive.models.Booking;
 import com.hive.models.Owner;
+import com.hive.repo.BookingRepo;
 import com.hive.repo.OwnerRepo;
 import com.hive.repo.OwnerRepoCustom;
 
@@ -17,11 +22,10 @@ public class OwnerService {
 	private OwnerRepo ownerRepo;
 	
 	@Autowired
-	private PasswordEncoder passwordEncoder;
+	BookingRepo bookingRepo;
 	
 	public Owner register(Owner owner) {
-		// Hash password before saving
-		owner.setPassword(passwordEncoder.encode(owner.getPassword()));
+		owner.setRegistrationDate(new Date(0));
 		return ownerRepo.save(owner);
 	}
 
@@ -29,20 +33,24 @@ public class OwnerService {
 		return ownerRepo.findById(email).orElseThrow();
 	}
 	
-//	public Owner updateOwner(Owner owner) {
-//		return ownerRepo.updateOwner(owner);
-//	}
-//
-//	public boolean updatePhoto(String email, byte[] photo) {
-//		return ownerRepo.updatePhoto(email, photo);
-//	}
-//
+	public Owner updateOwner(Owner owner) {
+		return ownerRepoCustom.updateOwner(owner);
+	}
+
+	public Owner updatePhoto(Owner owner) {
+		return ownerRepoCustom.updatePhoto(owner);
+	}
+
 	public byte[] getPhoto(String email) {
 		return ownerRepoCustom.getPhoto(email);
 	}
-//
-//	public boolean updatePassword(String ownerEmail, String newPassword) {
-//		return ownerRepo.updatePassword(ownerEmail,newPassword);
-//	}
+
+	public Owner updatePassword(String email, String newPassword) {
+		return ownerRepoCustom.updatePassword(email,newPassword);
+	}
+
+	public List<Booking> manageBooking(String email) {
+		return bookingRepo.findAllByOwnerEmail(email);
+	}
 
 }

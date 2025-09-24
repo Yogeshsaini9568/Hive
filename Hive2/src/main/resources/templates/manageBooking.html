@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Owner - Manage Bookings</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    .manage-btn { margin-right: 7px; }
+    .section-heading {color:#2d6a4f;font-weight:700;margin:32px 0 18px;}
+    .booking-card{background:#fff;border-radius:9px;box-shadow:0 2px 10px #bbb;margin-bottom:20px}
+    .booking-status{font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="container mt-4">
+  <h2 class="section-heading">Manage Bookings</h2>
+
+  <div th:if="${#lists.isEmpty(bookings)}">
+      <div class="alert alert-info">No bookings found for your properties!</div>
+  </div>
+  <div th:each="booking : ${bookings}" class="booking-card p-4 mb-3">
+    <div class="row">
+      <div class="col-md-8">
+        <h5>
+          <span th:text="'Booking ID: ' + ${booking.id}"></span>
+          <span class="mx-1">|</span>
+          <span th:text="${booking.propertyId}">Property ID</span>
+        </h5>
+        <p>
+          <strong>User Email:</strong> <span th:text="${booking.userEmail}"></span>
+          &nbsp;|&nbsp;
+          <strong>Check-in:</strong>
+          <span th:text="${#dates.format(booking.checkinDate, 'yyyy-MM-dd')}"/>
+          &nbsp;|&nbsp;
+          <strong>Checkout:</strong>
+          <span th:text="${#dates.format(booking.checkoutDate, 'yyyy-MM-dd')}" />
+          &nbsp;|&nbsp;<br>
+          <strong>Months:</strong> 
+          <span th:text="${booking.numberOfMonths}" />
+        </p>
+        <p>
+          <strong>Amount:</strong> ₹<span th:text="${booking.amount}" />
+          &nbsp;|&nbsp;
+          <strong>Payment:</strong> <span th:text="${booking.paymentMode}" />
+        </p>
+        <p>
+          <strong>Status:</strong>
+          <span class="booking-status" th:text="${booking.status}">Pending</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

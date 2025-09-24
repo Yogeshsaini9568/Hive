@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.hive.models.Owner;
 import com.hive.models.Property;
 import com.hive.models.Room;
+import com.hive.repo.OwnerRepo;
 import com.hive.repo.OwnerRepoCustom;
 import com.hive.repo.PropertyCustomRepo;
 import com.hive.repo.PropertyRepo;
@@ -26,17 +27,20 @@ public class PropertyService {
 	RoomRepo roomRepo; 
 	
 	@Autowired
-	OwnerRepoCustom ownerRepo;
+	OwnerRepo ownerRepo;
+	
+	@Autowired
+	OwnerRepoCustom ownerRepoCustom;
 	
 	public Owner addProperty(Property property) {
 		propertyRepo.save(property);
-		return ownerRepo.getOwner(property.getOwner().getEmail());
+		return ownerRepo.findById(property.getOwnerEmail()).orElse(null);
 	}
 
 	public Owner addRoom(Room room) {
 		roomRepo.save(room);
 		Property property=propertyRepo.findById(room.getProperty().getId()).orElseThrow();
-		return ownerRepo.getOwner(property.getOwner().getEmail());
+		return ownerRepo.findById(property.getOwnerEmail()).orElse(null);
 	}
 
 	public boolean uploadImages(Property property) {

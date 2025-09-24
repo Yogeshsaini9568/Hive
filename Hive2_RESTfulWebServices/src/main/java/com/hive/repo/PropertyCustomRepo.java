@@ -39,11 +39,9 @@ public class PropertyCustomRepo {
 	public Property addRoom(Room room) {
 		Session session=entityManager.unwrap(Session.class);
 		Amenity amenity=room.getAmenity();
-		System.out.println(room);
 		if(amenity.getId()==0) {
 			amenity=amenityRepo.save(amenity);
 		}
-		System.out.println(amenity);
 		room.setAmenity(amenity);
 		session.persist(room);
 		return null;

@@ -24,15 +24,13 @@ public class PropertyService {
     public Owner addProperty(Property property, Owner owner) {
         try {
             // Ensure owner is set properly
-            if (property.getOwner() == null) {
-                property.setOwner(owner);
+            if (property.getOwnerEmail() == null) {
+                property.setOwnerEmail(owner.getEmail());
             }
             
             String apiUrl = API_BASE_URL + "/addProperty";
             HttpEntity<Property> requestEntity = new HttpEntity<>(property);
-            ResponseEntity<Owner> response = restTemplate.exchange(
-                apiUrl, HttpMethod.POST, requestEntity, Owner.class);
-            
+            ResponseEntity<Owner> response = restTemplate.exchange(apiUrl, HttpMethod.POST, requestEntity, Owner.class);
             return response.getBody();
         } catch (Exception e) {
             // Log the error in production
@@ -49,13 +47,22 @@ public class PropertyService {
             return null;
         }
     }
+    
+    public Owner getOwner(String ownerEmail) {
+        try {
+            String apiUrl = "http://localhost:2003/owner/getOwner/" + ownerEmail;
+            return restTemplate.getForObject(apiUrl, Owner.class);
+        } catch (Exception e) {
+            // Log the error in production
+            return null;
+        }
+    }
 
     public List<Property> getPropertiesByOwner(String ownerEmail) {
         try {
             String apiUrl = API_BASE_URL + "/getProperties/" + ownerEmail;
             ResponseEntity<List<Property>> response = restTemplate.exchange(
-                apiUrl, HttpMethod.GET, null, 
-                new ParameterizedTypeReference<List<Property>>() {});
+                apiUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Property>>() {});
             return response.getBody();
         } catch (Exception e) {
             // Log the error in production
@@ -76,9 +83,7 @@ public class PropertyService {
             
             String apiUrl = API_BASE_URL + "/addRoom";
             HttpEntity<Room> requestEntity = new HttpEntity<>(room);
-            ResponseEntity<Owner> response = restTemplate.exchange(
-                apiUrl, HttpMethod.POST, requestEntity, Owner.class);
-            
+            ResponseEntity<Owner> response = restTemplate.exchange(apiUrl, HttpMethod.POST, requestEntity, Owner.class);
             return response.getBody();
         } catch (Exception e) {
             // Log the error in production
@@ -90,8 +95,7 @@ public class PropertyService {
         try {
             String apiUrl = API_BASE_URL + "/viewRooms/" + propertyId;
             ResponseEntity<List<Room>> response = restTemplate.exchange(
-                apiUrl, HttpMethod.GET, null, 
-                new ParameterizedTypeReference<List<Room>>() {});
+                apiUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Room>>() {});
             return response.getBody();
         } catch (Exception e) {
             // Log the error in production
@@ -105,7 +109,6 @@ public class PropertyService {
             if (property == null) {
                 return false;
             }
-            
             // Set images
             if (images.length > 0) property.setImg1(images[0].getBytes());
             if (images.length > 1) property.setImg2(images[1].getBytes());
@@ -114,8 +117,7 @@ public class PropertyService {
             
             String apiUrl = API_BASE_URL + "/uploadImages";
             HttpEntity<Property> requestEntity = new HttpEntity<>(property);
-            ResponseEntity<Boolean> response = restTemplate.exchange(
-                apiUrl, HttpMethod.POST, requestEntity, Boolean.class);
+            ResponseEntity<Boolean> response = restTemplate.exchange(apiUrl, HttpMethod.POST, requestEntity, Boolean.class);
             
             return response.getBody() != null && response.getBody();
         } catch (IOException e) {
@@ -141,8 +143,7 @@ public class PropertyService {
         try {
             String apiUrl = API_BASE_URL + "/searchProperty/" + name;
             ResponseEntity<List<Property>> response = restTemplate.exchange(
-                apiUrl, HttpMethod.GET, null, 
-                new ParameterizedTypeReference<List<Property>>() {});
+                apiUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Property>>() {});
             return response.getBody();
         } catch (Exception e) {
             // Log the error in production

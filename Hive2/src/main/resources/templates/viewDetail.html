@@ -99,8 +99,8 @@
 
       <div>
         <h5 class="section-heading">Owner</h5>
-        <p th:text="${property.owner != null} ? ${property.owner.name} : 'Owner info not available'">Owner Name</p>
-        <p><strong>Contact:</strong> <a href="">owner@example.com</a></p> <!-- "'mailto:' + ${property.owner.email}" th:text="${property.owner.email}" -->
+        <p th:text="${name != null} ? ${name} : 'Owner info not available'">Owner Name</p>
+        <p><strong>Contact:</strong> <a href="'mailto:' + ${property.ownerEmail}" th:text="${property.ownerEmail}">owner@example.com</a></p> <!-- "'mailto:' + ${property.owner.email}" th:text="${property.owner.email}" -->
       </div>
 
       <div>
@@ -116,12 +116,100 @@
       </div>
 
       <div class="mt-4">
-        <a th:href="@{/property/book/{id}(id=${property.id})}" class="btn btn-book btn-lg w-100">Book Now</a>
+       <button type="button" class="btn btn-book btn-lg w-100" data-bs-toggle="modal" data-bs-target="#bookingModal">
+  		  	Book Now
+		  </button>
+
       </div>
     </div>
   </div>
 
 </div>
+<!-- Booking Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form th:action="@{/booking/book}" method="post">
+        <div class="modal-header">
+                  </div>
+        <div class="modal-body">
+
+          <!-- Hidden fields for userId, buildingId, amount -->
+          <input type="hidden" name="userEmail" th:value="${session.user.email}" />
+          <input type="hidden" name="ownerEmail" th:value="${property.ownerEmail}" />
+          <input type="hidden" name="propertyId" th:value="${property.id}" />
+         <!--  <input type="hidden" name="amount" id="amountField" th:value="${room.price}" /> -->
+
+          <!-- Checkin Date -->
+          <div class="mb-3">
+            <label for="checkinDate" class="form-label">Check-in Date</label>
+            <input type="date" class="form-control" name="checkinDate" id="checkinDate" required>
+          </div>
+
+          <!-- Number of Months -->
+          <div class="mb-3">
+            <label for="numberOfMonths" class="form-label">Number of Months</label>
+            <input type="number" class="form-control" name="numberOfMonths" id="numberOfMonths" min="1" max="24" required>
+          </div>
+
+          <!-- Checkout Date (auto-calculate) -->
+          <div class="mb-3">
+            <label for="checkoutDate" class="form-label">Checkout Date</label>
+            <input type="date" class="form-control" name="checkoutDate" id="checkoutDate" readonly>
+          </div>
+		  
+		  <!-- <div class="mb-3">
+		    <label for="amount" class="form-label">Amount</label>
+		    <input type="number" class="form-control" id="amount" name="amount" th:value="${property.amount}" readonly>
+		  </div> -->
+          <!-- Payment Mode -->
+          <div class="mb-3">
+            <label for="paymentMode" class="form-label">Payment Mode</label>
+            <select name="paymentMode" class="form-select" required>
+              <option value="UPI">UPI</option>
+              <option value="Card">Card</option>
+              <option value="Cash">Cash</option>
+            </select>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success w-100">Confirm Booking</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  function calcCheckout() {
+    const checkinInput = document.getElementById("checkinDate");
+    const monthsInput = document.getElementById("numberOfMonths");
+    const checkoutInput = document.getElementById("checkoutDate");
+
+    if (checkinInput.value && monthsInput.value) {
+      const checkinDate = new Date(checkinInput.value);
+      const months = parseInt(monthsInput.value);
+
+      if (!isNaN(months)) {
+        const checkoutDate = new Date(checkinDate);
+        checkoutDate.setMonth(checkinDate.getMonth() + months);
+
+        const yyyy = checkoutDate.getFullYear();
+        const mm = String(checkoutDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(checkoutDate.getDate()).padStart(2, '0');
+        checkoutInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+    } else {
+      checkoutInput.value = "";
+    }
+  }
+
+  document.getElementById("checkinDate").addEventListener("change", calcCheckout);
+  document.getElementById("numberOfMonths").addEventListener("input", calcCheckout);
+});
+</script>
 
 <!-- Bootstrap 5 JS Bundle (Popper + Bootstrap JS) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

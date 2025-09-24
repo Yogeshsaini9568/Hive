@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
   <style>
     :root {
       --hive-dark: #1a1a1a;
@@ -290,31 +291,20 @@
           </li>
         </ul>
         
-        <form class="search-form">
-          <div class="row g-3">
-            <div class="col-md-5 position-relative">
-              <i class="bi bi-geo-alt input-icon"></i>
-              <input type="text" class="form-control" placeholder="City, Area or University">
-            </div>
-            
-            <div class="col-md-4 position-relative">
-              <i class="bi bi-calendar input-icon"></i>
-              <select class="form-select">
-                <option selected>Move-in Date</option>
-                <option>Immediately</option>
-                <option>Within 1 Month</option>
-                <option>Next Semester</option>
-              </select>
-            </div>
-            
-            <div class="col-md-3" style="margin-top: 40px;">
-              <button type="submit" class="btn btn-dark w-100 search-btn">
-                <i class="bi bi-search me-2"></i> Search
-              </button>
-            </div>
-            
+        <form th:action="@{/property/searchProperty}" method="get" class="search-form">
+        <div class="row g-3">
+          <div class="col-md-5 position-relative">
+            <i class="bi bi-geo-alt input-icon"></i>
+            <input type="text" name="name" class="form-control" placeholder="City, Area or University">
           </div>
-        </form>
+          
+          <div class="col-md-3" style="margin-top: 40px;">
+            <button type="submit" class="btn btn-dark w-100 search-btn">
+              <i class="bi bi-search me-2"></i> Search
+            </button>
+          </div>
+        </div>
+      </form>
         
         <div class="filter-chips">
           <div class="filter-chip active">
@@ -622,5 +612,12 @@
       });
     });
   </script>
+  <script type="module">
+	import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+	createChat({
+		webhookUrl: 'https://yogeshsaini9568.app.n8n.cloud/webhook/e3cfb681-c0dc-4d5e-869c-d667fe35a31a/chat'
+	});
+</script>
 </body>
 </html>
