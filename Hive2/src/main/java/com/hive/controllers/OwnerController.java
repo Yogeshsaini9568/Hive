@@ -29,7 +29,6 @@ import com.hive.models.Owner;
 
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpSession;
-//hello jugnu
 
 @Controller
 @RequestMapping("/owner")
